@@ -1,0 +1,53 @@
+apiVersion: v1
+baseDomain: nasatam.support
+fips: false
+sshKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQTP06j41yTBsNkY3FGtcdKHqTTOUh0tfg3cWx9hSX9FkOWx7WtRyD8VWx/+aaj52XUtdgH1gtn6AhmkgYVXEbfHwImzhMrT6gyeMyYa8F287UAf5E3oiPXO2w4MI07t31KSFbkYiy9TIJT272t3FX2kEYcgnoErt17dJxhu1cVFvZX7r8FdqvIWiF2invHtK20tx7F+qGjTppRoavoPIiJ3qssm9flz2FtJrI3ijnsWa8ga/YZQKVVco8OuKq8DxywGwdbIbOLQfCHERwSJGDu3mlvlOshTdYc23ciLXIbs6PrgQgLi7KF7RpFmVdne05oNd5DO52W1kUFtijUWGxAblyMjChkqzviFGBUmR5gsreK1txq2eoVSdNYbPZzTH6D3WhBTRwP1oO7xxOJy6hukEvRo+1GdoQLNbdvFUhXw6TL8/IVJefo09dUZNQMMv6uLkmxU9VjQU79OY9DP5Z9WNeCt7HlHoMfLHU1HRBU8loXvX8YMocXqtq6Qb6HCiWhCOx5q1AZUGDAU5fE5YWL1Y/Q+lxer6eDXWRu0vo39z0LftCAFO6mcEumIJh2PSYJmt8TJxUze18z2CSQ7X7rM54z/dFLmtkxz0GwfrU3LAl0s/HCKTLSOSeCi3GqoUmKxQ3j1BkC/eMT+mtFL2tT3cJ91Z0KlXLjIwRI247PQ== ec2-user@dsulliva-tower01.nasatam.support'
+pullSecret: '{"auths":{"cloud.openshift.com":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K3JobnN1cHBvcnRkc3VsbGl2YTF1d3BneTNxeG02b3h4ZDB2em5la3pkZXh2MTpWOU5WSVdTSFYxMU42TkhNNVkxWVpITFVNNTFEWjA3SElYNElZRUpNQUgzSDFVRE1NUkFaUjdBOVlUTUVKWVo2","email":"dsulliva@redhat.com"},"quay.io":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K3JobnN1cHBvcnRkc3VsbGl2YTF1d3BneTNxeG02b3h4ZDB2em5la3pkZXh2MTpWOU5WSVdTSFYxMU42TkhNNVkxWVpITFVNNTFEWjA3SElYNElZRUpNQUgzSDFVRE1NUkFaUjdBOVlUTUVKWVo2","email":"dsulliva@redhat.com"},"registry.connect.redhat.com":{"auth":"NjA3NTI1OHx1aGMtMVVXUEdZM1FYbTZvWFhkMFZ6bkVrekRFWFYxOmV5SmhiR2NpT2lKU1V6VXhNaUo5LmV5SnpkV0lpT2lKbU1HTmpaakZrTVRFME1tTTBPVEV3WWpObU1tSTVaV1F3WmpVek1Ua3pZeUo5LnRzZ204ZVNEVkVmcDI5YlhXUFBqVG5VS3ZqUkUxTlVadE81WjJyNG9NSXVPQlR0RDZ0RDhnSU1ydDViZWU1WEpRSTZyMmVzNVlHMFg3c2NhaTRSZjRxLUNJY3RaUzQxQW9kN3N4YnFGTUF3WW9YUEZSTDlVUHZMMHFvTFBNbkNRamN3dlJ1eWJ1V0V4bE5nRmU3UXAwaE5rdGFvSXlOTkJpZkFvQ3BaaFRKM0dmallMTEtBdmtiZEE5a0NCc1lxRXJ0bmJXdnF1X0h2aG5ndU14WkRoQ0dOV0ZSaHd4Y2hQc0ZpQWRyMWNYQnViR3lsWlMySERqY2ktN2lDTDhwTS1tWHl0LXlVR1UzdGxIQWM3WDVCX2FDU1M3Y1Q5SzRIcks2Z05CNUdMQjV2Y1FwSS1FQXo2NlpPVWczR2FhMDA1VjBkVXJBVGl1ZG1VZllPelM4NzUxNTN3TVRRbW9hV2dnRmU4Nm96VERFRG9iTVZpMkF5UmlQT0JleXFHYVFaWm5FVGJQQkU2WlZ5NGI3UkQxb3EwQ29jMm5RNkgzYy1HRFBiQ3ZhRXNFWk0yQ3o0NE1NVEU5VXhmd3lRbFZyYXh6SndMZjh1aXJwUHJDVEpVNGRoeDd2NE1TUWZ3bndGYVU4Yk1OY1JZdkI1eWpGY3ZOS2dkMmduNjR6T3ZuMUlrYUhVLU12QUY5QXpPbmNtNjc5cTNqM1Jfa3pRbjVmVEZCX3pNSS1xcEtnTG8yb2JPMWx4bFdwcnlmcVZLNnY2eC1LTWZiN21zekxqY3d6YXdqWGZxdE54XzdhOGlRU19xRkJNbVZPaVM5cTdqUFVxUUdvQkRvLUlsV2Ixc3pES2NPaTI3ZEo0Y0dzTDJZeERtNGZTZ2kzQWtzMk9yWDhnY0Rqd0cxOFRPNEFN","email":"dsulliva@redhat.com"},"registry.redhat.io":{"auth":"NjA3NTI1OHx1aGMtMVVXUEdZM1FYbTZvWFhkMFZ6bkVrekRFWFYxOmV5SmhiR2NpT2lKU1V6VXhNaUo5LmV5SnpkV0lpT2lKbU1HTmpaakZrTVRFME1tTTBPVEV3WWpObU1tSTVaV1F3WmpVek1Ua3pZeUo5LnRzZ204ZVNEVkVmcDI5YlhXUFBqVG5VS3ZqUkUxTlVadE81WjJyNG9NSXVPQlR0RDZ0RDhnSU1ydDViZWU1WEpRSTZyMmVzNVlHMFg3c2NhaTRSZjRxLUNJY3RaUzQxQW9kN3N4YnFGTUF3WW9YUEZSTDlVUHZMMHFvTFBNbkNRamN3dlJ1eWJ1V0V4bE5nRmU3UXAwaE5rdGFvSXlOTkJpZkFvQ3BaaFRKM0dmallMTEtBdmtiZEE5a0NCc1lxRXJ0bmJXdnF1X0h2aG5ndU14WkRoQ0dOV0ZSaHd4Y2hQc0ZpQWRyMWNYQnViR3lsWlMySERqY2ktN2lDTDhwTS1tWHl0LXlVR1UzdGxIQWM3WDVCX2FDU1M3Y1Q5SzRIcks2Z05CNUdMQjV2Y1FwSS1FQXo2NlpPVWczR2FhMDA1VjBkVXJBVGl1ZG1VZllPelM4NzUxNTN3TVRRbW9hV2dnRmU4Nm96VERFRG9iTVZpMkF5UmlQT0JleXFHYVFaWm5FVGJQQkU2WlZ5NGI3UkQxb3EwQ29jMm5RNkgzYy1HRFBiQ3ZhRXNFWk0yQ3o0NE1NVEU5VXhmd3lRbFZyYXh6SndMZjh1aXJwUHJDVEpVNGRoeDd2NE1TUWZ3bndGYVU4Yk1OY1JZdkI1eWpGY3ZOS2dkMmduNjR6T3ZuMUlrYUhVLU12QUY5QXpPbmNtNjc5cTNqM1Jfa3pRbjVmVEZCX3pNSS1xcEtnTG8yb2JPMWx4bFdwcnlmcVZLNnY2eC1LTWZiN21zekxqY3d6YXdqWGZxdE54XzdhOGlRU19xRkJNbVZPaVM5cTdqUFVxUUdvQkRvLUlsV2Ixc3pES2NPaTI3ZEo0Y0dzTDJZeERtNGZTZ2kzQWtzMk9yWDhnY0Rqd0cxOFRPNEFN","email":"dsulliva@redhat.com"}}}'
+controlPlane:
+  hyperthreading: Enabled 
+  name: master
+  platform:
+    aws:
+      zones:
+      - us-east-1a
+      - us-east-1b
+      - us-east-1c
+      rootVolume:
+        type: gp2
+      type: m5.xlarge
+  replicas: 3
+compute: 
+- hyperthreading: Enabled
+  name: worker
+  platform:
+    aws:
+      rootVolume:
+        type: gp2
+      type: m5.xlarge
+      zones:
+      - us-east-1a
+  replicas: 1
+metadata:
+  name: dsulliva-hub01
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 10.0.0.0/16
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  aws:
+    region: us-east-1
+    userTags:
+      adminContact: dsulliva
+    amiID: ami-029561f3c13a90548
+    serviceEndpoints: 
+      - name: ec2
+        url: https://ec2.us-east-1.amazon.aws.com
+      - name: s3
+        url: https://s3.us-east-1.amazon.aws.com
+      - name: elasticloadbalancing
+        url: https://elasticloadbalancing.us-east-1.amazon.aws.com

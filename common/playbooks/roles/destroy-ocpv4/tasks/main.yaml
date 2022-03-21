@@ -1,0 +1,19 @@
+- name: copy destroy cluster script into place
+  become: yes
+  become_user: "{{ privileged_user }}"
+  become_method: "{{ becomemethod }}"
+  copy:
+    src: "../../../../../scripts/destroy_ocpv4.sh"
+    dest: "/home/{{ privileged_user }}/{{ cluster_id }}/destroy_ocpv4.sh"
+    owner: "{{ privileged_user }}"
+    group: "{{ privileged_group }}"
+    mode: u=rwx,g-rwx,o-rwx
+    force: yes
+
+- name: run ocpv4 destroy script
+  become: yes
+  become_user: "{{ privileged_user }}"
+  become_method: "{{ becomemethod }}"
+  shell: "bash /home/{{ privileged_user }}/{{ cluster_id }}/destroy_ocpv4.sh {{ cluster_id }} {{ privileged_user }}"
+  async: 21600
+  poll: 30
