@@ -44,10 +44,3 @@ platform:
     userTags:
       adminContact: dsulliva
     amiID: ami-029561f3c13a90548
-    serviceEndpoints: 
-      - name: ec2
-        url: https://ec2.us-east-1.amazon.aws.com
-      - name: s3
-        url: https://s3.us-east-1.amazon.aws.com
-      - name: elasticloadbalancing
-        url: https://elasticloadbalancing.us-east-1.amazon.aws.com
