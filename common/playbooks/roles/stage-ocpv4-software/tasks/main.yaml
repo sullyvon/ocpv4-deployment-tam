@@ -1,0 +1,32 @@
+- name: create directory for ocpv4 software
+  file:
+    path: ~/{{ ocpv4_version }}
+    state: directory
+
+- name: check if cli tgz exists
+  shell: "ls ~/{{ ocpv4_version }}/openshift-client-linux-{{ ocpv4_version }}.tar.gz"
+  register: testclient
+  ignore_errors: true
+
+- name: check if openshift-install tgz exists
+  shell: "ls ~/{{ ocpv4_version }}/openshift-install-linux-{{ ocpv4_version }}.tar.gz"
+  register: testinstall
+  ignore_errors: true
+
+- name: wget ocpv4 cli binaries
+  #environment:
+  #  https_proxy: http://fixme.acme.org:8080
+  shell: "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocpv4_version }}/openshift-client-linux-{{ ocpv4_version }}.tar.gz -P ~/{{ ocpv4_version }}"
+  when: testclient.rc != 0
+
+- name: unpackage ocpv4 client binaries
+  shell: "tar xzvf ~/{{ ocpv4_version }}/openshift-client-linux-{{ ocpv4_version }}.tar.gz -C ~/{{ ocpv4_version }}"
+
+- name: wget ocpv4 install binary
+  #environment:
+  #  https_proxy: http://fixme.acme.org:8080
+  shell: "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocpv4_version }}/openshift-install-linux-{{ ocpv4_version }}.tar.gz -P ~/{{ ocpv4_version }}"
+  when: testclient.rc != 0
+
+- name: unpackage ocpv4 client binaries
+  shell: "tar xzvf ~/{{ ocpv4_version }}/openshift-install-linux-{{ ocpv4_version }}.tar.gz -C ~/{{ ocpv4_version }}"

@@ -1,0 +1,19 @@
+- name: check if ssh pub key exists already for this cluster
+  shell: "cat ~/.ssh/{{ cluster_id }}.pub"
+  register: test
+  ignore_errors: true
+
+- name: generate a ssh key for a cluster
+  shell: "ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/{{ cluster_id }}"
+  async: 300
+  poll: 10
+  when: test.rc != 0
+
+- name: show ssh public key
+  shell: "cat ~/.ssh/{{ cluster_id }}.pub"
+  register: catpub
+  async: 300
+  poll: 10
+
+- debug:
+    msg: "{{ catpub.stdout }}" 
