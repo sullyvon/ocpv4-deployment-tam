@@ -1,4 +1,7 @@
 - hosts: all
+  become: yes
+  become_user: "{{ privileged_user}}"
+  become_method: "{{ becomemethod }}"
 
   roles:
   -  stage-ocpv4-software
