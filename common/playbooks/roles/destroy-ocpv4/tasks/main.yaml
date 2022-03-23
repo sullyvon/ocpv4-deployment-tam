@@ -14,6 +14,6 @@
   become: yes
   become_user: "{{ privileged_user }}"
   become_method: "{{ becomemethod }}"
-  shell: "bash /home/{{ privileged_user }}/{{ cluster_id }}/destroy_ocpv4.sh {{ cluster_id }} {{ privileged_user }}"
+  shell: "bash /home/{{ privileged_user }}/{{ cluster_id }}/destroy_ocpv4.sh {{ cluster_id }} {{ privileged_user }} {{ocpv4_version}}"
   async: 21600
   poll: 30

@@ -41,9 +41,9 @@
   - debug:
       msg: "Infrastructure Cluster ID:  {{ cluster_infra_id.stdout }}"
 
-  #check postconfig mode if init set maxUnavailable to 100%
-  - name: get the unique cluster infrastructure id
-    shell: oc patch machineconfigpool/worker --patch '{"spec":{"maxUnavailable":"100%"}}' --type=merge
+  #check postconfig mode if init set maxUnavailable to 50 percent
+  - name: update 50 percent of the worker nodes at a time
+    shell: oc patch machineconfigpool/worker --patch '{"spec":{"maxUnavailable":"50%"}}' --type=merge
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
