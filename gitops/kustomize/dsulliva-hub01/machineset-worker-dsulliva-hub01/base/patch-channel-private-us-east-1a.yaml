@@ -39,7 +39,7 @@
   value: gp2
 
 - op: replace
-  path: /spec/template/spec/providerSpec/value/iamInstanceProfle/id
+  path: /spec/template/spec/providerSpec/value/iamInstanceProfile/id
   value: ${CLUSTER_INFRA_ID}-worker-profile
 
 - op: replace
