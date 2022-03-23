@@ -25,6 +25,6 @@ patchesJson6902:
     group: machine.openshift.io
     version: v1beta1
     kind: MachineSet
-    name: dsulliva-hub01-odf-private-us-east-1b
+    name: dsulliva-hub01-odf-private-us-east-1c
     namespace: openshift-machine-api
   path: patch-channel-private-us-east-1c.yaml
