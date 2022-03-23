@@ -1,0 +1,37 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  name: ocs-sc-wait-job
+  namespace: openshift-gitops
+spec:
+  template:
+    spec:
+      activeDeadlineSeconds: 3600
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli:v4.9
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo -n "Waiting for odf ceph storage class to come online"
+              sleep $SLEEP
+              until oc get StorageClass --no-headers | grep -q "ocs-storagecluster-cephfs"
+              do
+                echo -n "...still waiting odf ceph storage to come online"
+                sleep $SLEEP
+              done
+              echo "DONE"
+          imagePullPolicy: Always
+          name: ocs-sc-wait-job
+          env:
+          - name: SLEEP
+            value: "30"
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccountName: cli-job-sa
+      terminationGracePeriodSeconds: 30

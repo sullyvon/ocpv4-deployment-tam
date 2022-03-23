@@ -1,0 +1,37 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  name: odf-node-wait-job
+  namespace: openshift-gitops
+spec:
+  template:
+    spec:
+      activeDeadlineSeconds: 3600
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli:v4.9
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo -n "Waiting for odf nodes to come online"
+              sleep $SLEEP
+              until [ "$(oc get nodes --no-headers | grep "storage" | grep "Ready" | wc -l)" -eq "3" ]
+              do
+                echo -n "...still waiting odf nodes to come online"
+                sleep $SLEEP
+              done
+              echo "DONE"
+          imagePullPolicy: Always
+          name: odf-node-wait-job
+          env:
+          - name: SLEEP
+            value: "30"
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccountName: cli-job-sa
+      terminationGracePeriodSeconds: 30

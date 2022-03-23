@@ -1,0 +1,17 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+  - ../../base
+
+patches:
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: acm-operator-subscription
+      namespace: open-cluster-management
+    patch: |-
+      - op: replace
+        path: /spec/source
+        value: 'redhat-operators'

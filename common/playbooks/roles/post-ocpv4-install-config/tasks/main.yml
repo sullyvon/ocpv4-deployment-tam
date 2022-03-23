@@ -1,0 +1,227 @@
+ # for kustomize code poor man solution to use ansible vault for secrets management hey it works fine 
+ # so keep these at the top
+ 
+ # - name: create ldap bind password secret
+ #   become: yes
+ #   become_user: "{{ privileged_user }}"
+ #   become_method: "{{ becomemethod }}"
+ #   environment:
+ #     PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+ #   vars:
+ #     ldapbind_pass: !vault |
+ #           $ANSIBLE_VAULT;1.1;AES256
+ #           FIXME
+ #   shell: bash -c "oc apply --kubeconfig='{{ kube_config }}' -f -"
+ #   args:
+ #     stdin: | 
+ #         kind: Secret
+ #         apiVersion: v1
+ #         metadata:
+ #           name: ldap-fixme-secret
+ #           namespace: openshift-config
+ #         stringData:
+ #           bindPassword: "{{ ldapbind_pass }}"
+
+  #note we may need per post configuration to work off a git branch and or tag
+  #change this to git checkout branch/git pull and arg branch via ansible tower playbook var
+  #this will allow us to update and test in specific environment first
+  - name: refresh git repo on build node
+    shell: git pull
+    args:
+      chdir: /home/{{ privileged_user }}/git/ocpv4-deployment-tam
+
+  #per cluster get cluster infrastructure id
+  - name: get the unique cluster infrastructure id
+    shell: oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: cluster_infra_id
+
+  - debug:
+      msg: "Infrastructure Cluster ID:  {{ cluster_infra_id.stdout }}"
+
+  #check postconfig mode if init set maxUnavailable to 100%
+  - name: get the unique cluster infrastructure id
+    shell: oc patch machineconfigpool/worker --patch '{"spec":{"maxUnavailable":"100%"}}' --type=merge
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    when: postconfig_mode == "init"
+
+  - name: deploy machinesets and mco chrony
+    shell: bash -c "oc kustomize /home/{{ privileged_user }}/git/ocpv4-deployment/gitops/kustomize/{{cluster_id}} | envsubst | oc apply -f -"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+      CLUSTER_INFRA_ID: "{{cluster_infra_id.stdout}}"
+
+  - name: stage catalog mirror to master hub for post configuration speed up
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/kustomize/hub-catalog-mirror/overlays/{{mirror_hub}}"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    when: (mirror_hub is defined) and (mirror_hub|length > 0)
+
+  #Note we are going to do the next check three times in a row to account for nodes coming online ready then going to mco configuration
+  #slightly hacky btw
+
+  - name: wait until we have the right amount of nodes ready
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: current_ready_node_count
+    retries: 180
+    delay: 30
+    until: current_ready_node_count.stdout == ready_node_count
+
+  #going back to waiting for the dust to settle after phase_two run 
+  #pause before checking cluster node ready status
+  - name: pause before checking cluster node ready status
+    pause: seconds=5
+
+  - name: wait until we have the right amount of nodes ready
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: current_ready_node_count
+    retries: 180
+    delay: 30
+    until: current_ready_node_count.stdout == ready_node_count
+
+  - name: deploy kustomized openshift-gitops-operator
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/kustomize/openshift-gitops-operator/overlays/{{clustertype}}"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+
+  - name: wait for gitops operator deployment status before continuing give it 30 minutes
+    shell: bash -c "oc get deployment.apps/cluster -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/kam -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/openshift-gitops-applicationset-controller -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/openshift-gitops-dex-server -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/openshift-gitops-redis -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/openshift-gitops-repo-server -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/openshift-gitops-server -n openshift-gitops -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}'"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: gitops_deployment_status
+    retries: 120
+    delay: 30
+    until: gitops_deployment_status.stdout == "TrueTrueTrueTrueTrueTrueTrue"
+
+  #todo come back and ensure this works from scratch 
+  - name: argocd login 
+    shell: argocd login {{ openshift_gitops_endpoint }} --username admin --password $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 'go-template={{ '{{' }}index .data "admin.password"{{ '}}' }}' | base64 -d) --insecure
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: argocd_login
+    delay: 30
+    retries: 10
+    until: argocd_login is not failed
+
+  - name: add argocd git repo
+    shell: argocd repo add git@github.com:sullyvon/ocpv4-deployment-tam.git --insecure-ignore-host-key --ssh-private-key-path ~/.ssh/github_dsulliva-tower01
+
+  #todo need a delay or check here for the repo above to complete 
+  - name: deploy gitops cluster-config argo project
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/projects/cluster-config/base"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+
+  #we only want to do this for the main openshift-gitops infrastructure project i.e. the argocd instance that general users do not have access to
+  - name: give argocd application controller sa cluster admin access
+    shell: oc adm policy add-cluster-role-to-user cluster-admin -z openshift-gitops-argocd-application-controller -n openshift-gitops
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+
+  #mastermind allowance of applications by clusterid for phase one
+  - name: deploy per clusterid applications phase one
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/applications/{{cluster_id}}" -n openshift-gitops
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+
+  #write some magical code here to make sure stage one deployed ok we will check ocs
+  #TODO check status of ocs deployment not operator
+  #one concern here is if say a new Deployment comes in or goes away the number of True statuses can change
+  - name: wait for ocs operator deployment status before continuing give it 90 minutes
+    #shell: bash -c "oc get operator ocs-operator.openshift-storage -o jsonpath='{.status.components.refs[?(@.kind==\"Deployment\")].conditions[?(@.type==\"Available\")].status}'"
+    shell: bash -c "oc get deployment.apps/csi-cephfsplugin-provisioner -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/csi-rbdplugin-provisioner -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/noobaa-endpoint -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/noobaa-operator -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/ocs-metrics-exporter -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/ocs-operator -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-mon-a -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-mon-b -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-mon-c -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-osd-0 -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-osd-1 -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-osd-2 -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}' && oc get deployment.apps/rook-ceph-operator -n openshift-storage -o jsonpath='{.status.conditions[?(@.type==\"Available\")].status}'"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: gitops_ocs_status
+    retries: 180
+    delay: 30
+    until: gitops_ocs_status.stdout == "TrueTrueTrueTrueTrueTrueTrueTrueTrueTrueTrueTrueTrue"
+
+
+  #per cluster get cluster infrastructure id
+  - name: get the unique cluster infrastructure id
+    shell: oc get -o jsonpath='{.status.infrastructureName}{"\n"}' infrastructure cluster
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: cluster_infra_id
+
+  - name: check if the original worker machineset is there
+    shell: bash -c "oc get machineset ${{cluster_infra_id.stdout}}-worker --no-headers -n openshift-machine-api 2> /dev/null | wc -l"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: orig_worker_machineset
+
+  #we want tight control of the attribute settings for our worker nodes so we want to remove the original worker machineset
+  - name: remove the original worker machineset from ipi install
+    shell: bash -c "oc delete machineset {{cluster_infra_id.stdout}}-worker -n openshift-machine-api"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    when: orig_worker_machineset.stdout != "0"
+
+  #mastermind allowance of applications by clusterid for phase two
+  - name: deploy per clusterid applications phase two
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/applications/{{cluster_id}}/phase_two" -n openshift-gitops
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+ 
+  #going back to waiting for the dust to settle after phase_two run 
+  #pause before checking cluster node ready status
+  - name: pause before checking cluster node ready status
+    pause: seconds=30
+
+  - name: wait until we have the right amount of nodes ready
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: current_ready_node_count
+    retries: 180
+    delay: 30
+    until: current_ready_node_count.stdout == ready_node_count
+
+  #going back to waiting for the dust to settle after phase_two run 
+  #pause before checking cluster node ready status
+  - name: pause before checking cluster node ready status
+    pause: seconds=5
+
+  - name: wait until we have the right amount of nodes ready
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    register: current_ready_node_count
+    retries: 180
+    delay: 30
+    until: current_ready_node_count.stdout == ready_node_count
+
+  - name: set our worker mcp concurrent update back to 1
+    shell: oc patch machineconfigpool/worker --patch '{"spec":{"maxUnavailable":"1"}}' --type=merge
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    when: postconfig_mode == "init"
+
+  #finally need to add in acm setup and integration coming soon 

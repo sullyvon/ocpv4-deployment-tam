@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- openshift-gitops-namespace.yaml
+- openshift-operators.yaml
+- openshift-gitops-operator-subscription.yaml
+- cli-job-sa.yaml
+- cli-sa-rbac.yaml
+- openshift-storage-namespace.yaml
+- stackrox-namespace.yaml
+- openshift-logging-ns.yaml

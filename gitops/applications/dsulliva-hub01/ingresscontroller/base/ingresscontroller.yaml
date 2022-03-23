@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingresscontroller
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: openshift-gitops
+    server: https://kubernetes.default.svc
+  project: cluster-config
+  source:
+    path: gitops/manifests/ingresscontroller/base
+    repoURL: git@github.com:sullyvon/ocpv4-deployment-tam.git
+    targetRevision: dsulliva-hub01_master
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

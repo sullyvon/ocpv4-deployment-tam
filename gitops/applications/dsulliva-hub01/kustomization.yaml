@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+- ./advanced-cluster-management/base
+- ./openshift-container-storage-operator/base
+- ./quay-operator/base
+- ./elasticsearch-and-openshift-logging/base
+- ./advanced-cluster-security-operator-combined/base
+- ./ingresscontroller/base

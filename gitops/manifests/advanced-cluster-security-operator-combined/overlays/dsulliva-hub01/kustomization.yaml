@@ -1,0 +1,37 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+  - ../../base
+
+patches:
+  - target:
+      group: platform.stackrox.io
+      version: v1alpha1
+      kind: SecuredCluster
+      name: stackrox-secured-cluster-services 
+      namespace: stackrox
+    patch: |-
+      - op: replace
+        path: /spec/clusterName
+        value: 'dsulliva-hub01'
+  - target:
+      group: platform.stackrox.io
+      version: v1alpha1
+      kind: SecuredCluster
+      name: stackrox-secured-cluster-services 
+      namespace: stackrox
+    patch: |-
+      - op: replace
+        path: /spec/centralEndpoint
+        value: 'central-stackrox.apps.dsulliva-hub01.nasatam.support:443'
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: rhacs-operator
+      namespace: rhacs-operator
+    patch: |-
+      - op: replace
+        path: /spec/source
+        value: 'redhat-operators'

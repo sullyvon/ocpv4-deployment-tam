@@ -1,0 +1,15 @@
+apiVersion: config.openshift.io/v1
+kind: Image
+metadata:
+  name: cluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  additionalTrustedCA:
+    name: external-registry-ca-cm
+  registrySources: 
+    allowedRegistries:
+    - quay.io
+    - registry.redhat.io
+    - image-registry.openshift-image-registry.svc:5000
+    - registry.access.redhat.com

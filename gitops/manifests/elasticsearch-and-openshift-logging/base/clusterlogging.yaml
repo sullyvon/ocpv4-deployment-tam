@@ -1,0 +1,55 @@
+apiVersion: "logging.openshift.io/v1"
+kind: "ClusterLogging"
+metadata:
+  name: "instance"
+  namespace: "openshift-logging"
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-options: Validate=false
+spec:
+  managementState: "Managed"
+  logStore:
+    type: "elasticsearch"
+    retentionPolicy: 
+      application:
+        maxAge: 30d
+      infra:
+        maxAge: 30d
+      audit:
+        maxAge: 30d
+    elasticsearch:
+      nodeCount: 3 
+      nodeSelector:
+        node-role.kubernetes.io/logging: ""
+      storage:
+        storageClassName: "thin" 
+        size: 100G
+      resources: 
+          limits:
+            memory: "16Gi"
+          requests:
+            memory: "16Gi"
+      proxy: 
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            memory: 256Mi
+      redundancyPolicy: "SingleRedundancy"
+  visualization:
+    type: "kibana"  
+    kibana:
+      replicas: 1
+      nodeSelector:
+        node-role.kubernetes.io/logging: ""
+  curation:
+    curator:
+      schedule: 30 3 * * *
+      nodeSelector:
+        node-role.kubernetes.io/logging: ""  
+    type: curator
+  collection:
+    logs:
+      type: "fluentd"  
+      fluentd: {}

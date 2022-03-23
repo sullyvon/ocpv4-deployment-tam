@@ -1,0 +1,14 @@
+kind: Channel
+apiVersion: apps.open-cluster-management.io/v1
+metadata:
+  name: ocp4-acm
+  namespace: acm-channel
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  insecureSkipVerify: true
+  pathname: git clone git@github.com:sullyvon/ocpv4-deployment-tam.git
+  type: Git
+  secretRef:
+    name: ocp4-acm-git

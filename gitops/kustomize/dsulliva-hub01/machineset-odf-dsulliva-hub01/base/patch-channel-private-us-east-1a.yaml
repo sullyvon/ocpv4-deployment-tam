@@ -1,0 +1,79 @@
+- op: replace
+  path: /metadata/labels/machine.openshift.io~1cluster-api-cluster
+  value: "${CLUSTER_INFRA_ID}"
+
+- op: replace
+  path: /spec/replicas
+  value: 1
+
+- op: replace
+  path: /spec/selector/matchLabels/machine.openshift.io~1cluster-api-cluster
+  value:  "${CLUSTER_INFRA_ID}"
+
+- op: replace
+  path: /spec/selector/matchLabels/machine.openshift.io~1cluster-api-machineset
+  value: "${CLUSTER_INFRA_ID}-odf-private-us-east-1a"
+
+- op: replace
+  path: /spec/template/metadata/labels/machine.openshift.io~1cluster-api-cluster
+  value: "${CLUSTER_INFRA_ID}"
+
+- op: replace
+  path: /spec/template/metadata/labels/machine.openshift.io~1cluster-api-machineset
+  value: "${CLUSTER_INFRA_ID}-odf-private-us-east-1a"
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/ami/id
+  value: ami-029561f3c13a90548
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/blockDevices/0/ebs/iops
+  value: 0
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/blockDevices/0/ebs/volumeSize
+  value: 120
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/blockDevices/0/ebs/volumeType
+  value: gp2
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/iamInstanceProfle/id
+  value: ${CLUSTER_INFRA_ID}-worker-profile
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/instanceType
+  value: m5.xlarge
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/placement/availabilityZone
+  value: us-east-1a
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/placement/region
+  value: us-east-1
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/securityGroups/0/filters/0/name
+  value: tag:Name
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/securityGroups/0/filters/0/values/0
+  value: ${CLUSTER_INFRA_ID}-worker-sg
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/subnet/filters/0/name
+  value: tag:Name
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/subnet/filters/0/values/0
+  value: ${CLUSTER_INFRA_ID}-private-us-east-1a
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/tags/0/name
+  value: kubernetes.io/cluster/${CLUSTER_INFRA_ID}
+
+- op: replace
+  path: /spec/template/spec/providerSpec/value/userDataSecret
+  value: worker-user-data

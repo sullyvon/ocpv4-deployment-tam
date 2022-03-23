@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- namespace.yaml
+- odf-node-wait-job.yaml
+- openshift-container-storage-operator-subscription.yaml
+- openshift-container-storage-operator-operatorgroup.yaml
+- odf-crd-wait-job.yaml
+- ocs-storagecluster.yaml

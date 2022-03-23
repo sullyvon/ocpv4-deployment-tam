@@ -1,0 +1,10 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+resources:
+- odf-sc-wait-job.yaml
+- quay-enterprise-namespace.yaml
+- init-config-bundle-secret.yaml
+- quay-subscription.yaml
+- quay-crd-wait-job.yaml
+- quayregistry.yaml

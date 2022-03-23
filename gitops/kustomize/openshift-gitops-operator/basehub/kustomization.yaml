@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- openshift-gitops-gstnonprod-namespace.yaml
+- openshift-gitops-gstprod-namespace.yaml
+- quay-enterprise-namespace.yaml
+- acm-namespace.yaml

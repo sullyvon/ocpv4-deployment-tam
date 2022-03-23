@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- infra_machineset_private-us-east-1a.yaml
+- infra_machineset_private-us-east-1b.yaml
+- infra_machineset_private-us-east-1c.yaml
+
+patchesJson6902:
+- target:
+    group: machine.openshift.io
+    version: v1beta1
+    kind: MachineSet
+    name: dsulliva-hub01-infra-private-us-east-1a
+    namespace: openshift-machine-api
+  path: patch-channel-private-us-east-1a.yaml
+- target:
+    group: machine.openshift.io
+    version: v1beta1
+    kind: MachineSet
+    name: dsulliva-hub01-infra-private-us-east-1b
+    namespace: openshift-machine-api
+  path: patch-channel-private-us-east-1b.yaml
+- target:
+    group: machine.openshift.io
+    version: v1beta1
+    kind: MachineSet
+    name: dsulliva-hub01-infra-private-us-east-1b
+    namespace: openshift-machine-api
+  path: patch-channel-private-us-east-1c..yaml
