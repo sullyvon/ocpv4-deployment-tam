@@ -57,4 +57,4 @@ spec:
             - name: patch-via-overlay
               value: owned
           userDataSecret:
-            name: worker-user-data 
+            name: worker-user-data
