@@ -27,4 +27,4 @@ patchesJson6902:
     kind: MachineSet
     name: dsulliva-hub01-infra-private-us-east-1b
     namespace: openshift-machine-api
-  path: patch-channel-private-us-east-1c..yaml
+  path: patch-channel-private-us-east-1c.yaml
