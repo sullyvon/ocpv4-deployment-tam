@@ -23,7 +23,7 @@ spec:
       nodeSelector:
         node-role.kubernetes.io/logging: ""
       storage:
-        storageClassName: "thin" 
+        storageClassName: "gp2" 
         size: 100G
       resources: 
           limits:
