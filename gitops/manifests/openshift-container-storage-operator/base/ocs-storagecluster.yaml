@@ -24,7 +24,7 @@ spec:
     - config: {}
       resources: {}
       placement: {}
-      name: ocs-deviceset-thin
+      name: ocs-deviceset-gp2
       dataPVCTemplate:
         metadata: {}
         spec:
@@ -33,7 +33,7 @@ spec:
           resources:
             requests:
               storage: 1024Gi
-          storageClassName: thin
+          storageClassName: gp2
           volumeMode: Block
         status: {}
       count: 1
