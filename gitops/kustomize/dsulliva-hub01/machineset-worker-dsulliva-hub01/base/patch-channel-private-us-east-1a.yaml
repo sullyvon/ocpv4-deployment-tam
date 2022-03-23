@@ -73,7 +73,3 @@
 - op: replace
   path: /spec/template/spec/providerSpec/value/tags/0/name
   value: kubernetes.io/cluster/${CLUSTER_INFRA_ID}
-
-- op: replace
-  path: /spec/template/spec/providerSpec/value/userDataSecret
-  value: worker-user-data
