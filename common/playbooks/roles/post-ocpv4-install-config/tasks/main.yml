@@ -67,14 +67,15 @@
   #slightly hacky btw
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    #shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "infra|logging|storage|master|worker" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
     register: current_ready_node_count
     retries: 180
     delay: 30
-    until: current_ready_node_count.stdout == ready_node_count
+    until: current_ready_node_count.stdout == ready_node_count_init
 
   #going back to waiting for the dust to settle after phase_two run 
   #pause before checking cluster node ready status
@@ -82,14 +83,15 @@
     pause: seconds=5
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    #shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "infra|logging|storage|master|worker" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
     register: current_ready_node_count
     retries: 180
     delay: 30
-    until: current_ready_node_count.stdout == ready_node_count
+    until: current_ready_node_count.stdout == ready_node_count_init
 
   - name: deploy kustomized openshift-gitops-operator
     shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/kustomize/openshift-gitops-operator/overlays/{{clustertype}}"
@@ -193,14 +195,15 @@
     pause: seconds=30
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    #shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "infra|logging|storage|master|worker" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
     register: current_ready_node_count
     retries: 180
     delay: 30
-    until: current_ready_node_count.stdout == ready_node_count
+    until: current_ready_node_count.stdout == ready_node_count_postinit
 
   #going back to waiting for the dust to settle after phase_two run 
   #pause before checking cluster node ready status
@@ -208,14 +211,15 @@
     pause: seconds=5
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    #shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "infra|logging|storage|master|worker" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
     register: current_ready_node_count
     retries: 180
     delay: 30
-    until: current_ready_node_count.stdout == ready_node_count
+    until: current_ready_node_count.stdout == ready_node_count_postinit
 
   - name: set our worker mcp concurrent update back to 1
     shell: oc patch machineconfigpool/worker --patch '{"spec":{"maxUnavailable":"1"}}' --type=merge
