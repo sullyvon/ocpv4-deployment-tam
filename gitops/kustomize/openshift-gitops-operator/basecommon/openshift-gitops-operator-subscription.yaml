@@ -5,10 +5,11 @@ metadata:
   namespace: openshift-operators
 spec:
   channel: stable
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   name: openshift-gitops-operator
   source: patch-via-overlay
   sourceNamespace: openshift-marketplace
+  startingCSV: openshift-gitops-operator.v1.4.1
   config:
     nodeSelector:
       node-role.kubernetes.io/infra: ""
