@@ -44,7 +44,7 @@
 
 - op: replace
   path: /spec/template/spec/providerSpec/value/instanceType
-  value: m5.xlarge
+  value: m5.2xlarge
 
 - op: replace
   path: /spec/template/spec/providerSpec/value/placement/availabilityZone
