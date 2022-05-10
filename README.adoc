@@ -1,0 +1,19 @@
+= Overview
+
+= Installation Procedures
+
+* launch ec2 instance 
+
+* ssh into ec2 instance
+
+----
+dsulliva@fancy awsocpdemo]$ ssh -i dsulliva-ocpv4-demo.pem ec2-user@18.233.65.90
+----
+
+* Install ansible-core
+
+----
+[ec2-user@ip-172-31-51-30 ~]$ sudo yum install ansible-core
+----
+
+// vim: set syntax=asciidoc:
