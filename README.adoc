@@ -10,10 +10,51 @@
 dsulliva@fancy awsocpdemo]$ ssh -i dsulliva-ocpv4-demo.pem ec2-user@18.233.65.90
 ----
 
-* Install ansible-core
+* Setup ec2 instance
 
 ----
 [ec2-user@ip-172-31-51-30 ~]$ sudo yum install ansible-core
+[ec2-user@ip-172-31-51-30 ~]$ lsblk
+[ec2-user@ip-172-31-51-30 ~]$ sudo pvcreate /dev/xvdb
+[ec2-user@ip-172-31-51-30 ~]$ sudo vgcreate vgdata /dev/xvdb
+[ec2-user@ip-172-31-51-30 ~]$ sudo lvcreate -l "100%FREE" -n lvdata vgdata
+[ec2-user@ip-172-31-51-30 ~]$ sudo mkfs.xfs /dev/vgdata/lvdata 
+[ec2-user@ip-172-31-51-30 ~]$ #fix /etc/fstab 
+[ec2-user@ip-172-31-51-30 ~]$ sudo mount -a
+[ec2-user@ip-172-31-51-30 ~]$ sudo chown -R ec2-user:ec2-user /data
+[ec2-user@ip-172-31-51-30 ~]$ ssh-keygen -t ed25519
+[ec2-user@ip-172-31-51-30 ~]$ cat ~/.ssh/id_ed25519.pub 
+# got to github settings and add ssh pub key
+#fix ~/.ssh/config
+[ec2-user@ip-172-31-51-30 ~]$ chmod 0600 ~/.ssh/config
+[ec2-user@ip-172-31-51-30 ~]$ cd /data
+[ec2-user@ip-172-31-51-30 ~]$ git clone git@github.com:sullyvon/ocpv4-deployment-tam.git
 ----
+
+* Setup
+
+Ansible Tower Templates
+
+common-stage-ocpv4-software
+dsulliva-hub01-common-ssh-keygen
+dsulliva-hub01-common-install-ocpv4
+Log into the ansible tower build node via ssh
+cd dsulliva-hub01;ls -lrt
+tail -f the install log
+dsulliva-hub01-common-post-ocpv4-install-config
+Log into the ansible tower build node via ssh
+export KUBECONFIG=/home/ec2-user/dsulliva-hub01/installocpv4/auth/kubeconfig
+This playbook/role has 4 main kustomize stages
+Stage I does our machinesets and optionally mco chrony
+watch -n 5 'oc get machines -n openshift-machine-api && oc get nodes'
+We really want our machines online and time right before we throw our operators on
+Stage II does openshift-gitops operator and stages some namespaces
+Another chicken and egg problem kind of need argocd up before you can deploy argocd applications
+Stage III does phase one of argocd/openshift-gitops applications
+watch -n 5 'oc get pods -n openshift-storage && oc get pvc --all-namespaces'
+Stage IV does phase two of the argocd/openshift-gitops applications
+watch -n 5 ‘oc get nodes’
+Here we do oauth setup and internal registry setup both of these have negative affects on core/operator rollout
+
 
 // vim: set syntax=asciidoc:
