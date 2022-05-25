@@ -108,8 +108,14 @@ vi dsulliva-hub01/config/install-config.yaml
 ----
 
 ----
-cd /data/ocpv4-deployment-tam/common/playbooks
-[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=ec2-user ocpv4_version=4.10.12"
+cd /git/data/ocpv4-deployment-tam/common/playbooks
+[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=ec2-user privileged_group=ec2-user ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
+----
+
+
+----
+cd /git/data/ocpv4-deployment-tam/common/playbooks
+[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=ec2-user privileged_group=ec2-user ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
 ----
 
 dsulliva-hub01-common-install-ocpv4
