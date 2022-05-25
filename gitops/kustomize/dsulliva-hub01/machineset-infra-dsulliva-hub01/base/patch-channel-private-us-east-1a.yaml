@@ -4,7 +4,7 @@
 
 - op: replace
   path: /spec/replicas
-  value: 1
+  value: 2
 
 - op: replace
   path: /spec/selector/matchLabels/machine.openshift.io~1cluster-api-cluster

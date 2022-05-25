@@ -115,7 +115,7 @@ cd /git/data/ocpv4-deployment-tam/common/playbooks
 
 ----
 cd /git/data/ocpv4-deployment-tam/common/playbooks
-[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=ec2-user privileged_group=ec2-user ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
+[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count_init=14 ready_node_count_postinit=14 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.nasatam.support"
 ----
 
 dsulliva-hub01-common-install-ocpv4
