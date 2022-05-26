@@ -365,5 +365,6 @@ TODO:
 * https://medium.com/@vbudidarmawan/demystifying-operator-deployment-in-openshift-2ac7f24ad487
 * https://docs.openshift.com/container-platform/4.10/installing/disconnected_install/installing-mirroring-disconnected.html
 * https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/pre-release/
+* https://github.com/openshift/oc-mirror
 
 // vim: set syntax=asciidoc

@@ -2,55 +2,12 @@
 
 = Installation Procedures
 
-== launch ec2 instance 
-
-* ami-0b0af3577fe5e3532
-** m4.xlarge
-** add new volume 60 GB gp2 delete on termination
-** add Tag "Name" vaule: dsulliva-build-node
-* TODO show how to do via aws cli
-
-== Setup ec2 instance
-
-* ssh into ec2 instance
+== Setup laptop
 
 ----
-dsulliva@fancy awsocpdemo]$ ssh -i dsulliva-ocpv4-demo.pem ec2-user@18.233.65.90
-----
-
-----
-[ec2-user@ip-172-31-51-30 ~]$ sudo dnf install ansible-core wget lvm2
-[ec2-user@ip-172-31-51-30 ~]$ lsblk
-[ec2-user@ip-172-31-51-30 ~]$ sudo pvcreate /dev/xvdb
-[ec2-user@ip-172-31-51-30 ~]$ sudo vgcreate vgdata /dev/xvdb
-[ec2-user@ip-172-31-51-30 ~]$ sudo lvcreate -l "100%FREE" -n lvdata vgdata
-[ec2-user@ip-172-31-51-30 ~]$ sudo mkfs.xfs /dev/vgdata/lvdata 
-----
-
-Fix /etc/fstab
-
-----
-[ec2-user@ip-172-31-51-30 ocpv4-deployment-tam]$ cat /etc/fstab 
-
-#
-# /etc/fstab
-# Created by anaconda on Tue May  4 17:21:06 2021
-#
-# Accessible filesystems, by reference, are maintained under '/dev/disk/'.
-# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info.
-#
-# After editing this file, run 'systemctl daemon-reload' to update systemd
-# units generated from this file.
-#
-UUID=c9aa25ee-e65c-4818-9b2f-fa411d89f585 /                       xfs     defaults        0 0
-/dev/vgdata/lvdata /data					  xfs     defaults        0 0
-----
-
-----
-[ec2-user@ip-172-31-51-30 ~]$ sudo mount -a
-[ec2-user@ip-172-31-51-30 ~]$ sudo chown -R ec2-user:ec2-user /data
-[ec2-user@ip-172-31-51-30 ~]$ ssh-keygen -t ed25519
-[ec2-user@ip-172-31-51-30 ~]$ cat ~/.ssh/id_ed25519.pub 
+sudo dnf install ansible-core wget
+ssh-keygen -t ed25519
+cat ~/.ssh/id_ed25519.pub 
 ----
 
 Go to github settings and add ssh pub key
@@ -60,35 +17,38 @@ Go to github settings and add ssh pub key
 Fix ssh config
 
 ----
-[ec2-user@ip-172-31-51-30 ~]$ cat ~/.ssh/config 
+cat ~/.ssh/config 
 HostName github.com
 IdentityFile ~/.ssh/id_ed25519
 ----
 
 ----
-[ec2-user@ip-172-31-51-30 ~]$ chmod 0600 ~/.ssh/config
-[ec2-user@ip-172-31-51-30 ~]$ cd /data
-[ec2-user@ip-172-31-51-30 ~]$ mkdir git;cd git
-[ec2-user@ip-172-31-51-30 ~]$ git clone git@github.com:sullyvon/ocpv4-deployment-tam.git
+chmod 0600 ~/.ssh/conig
+mkdir -p ~/redhat/ocpv4/git && cd ~/redhat/ocpv4/git/
+git clone git@github.com:sullyvon/ocpv4-deployment-tam.git
 #this should go into the staging software playbook
-[ec2-user@ip-172-31-51-30 playbooks]$ sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-[ec2-user@ip-172-31-51-30 playbooks]$ sudo chmod +x /usr/local/bin/argocd
+sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo chmod +x /usr/local/bin/argocd
 ----
 
-== Ansible Core
+== Ansible Core Hub Cluster Deployment
 
 *NOTE*
 
 For simplicity we demo this via ansible core but for an Enterprise environment Ansible Tower makes more sense
 
-----
-cd /data/git/ocpv4-deployment-tam/common/playbooks
-[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-stage-ocpv4-software.yaml -e "becomemethod=sudo privileged_user=ec2-user ocpv4_version=4.10.12"
-----
+*Stage OCPv4 CLI Tooling*
 
 ----
-cd /data/git/ocpv4-deployment-tam/common/playbooks
-[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-ssh-keygen.yml -e "cluster_id=hub01"
+cd ~/redhat/ocpv4/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-stage-ocpv4-software.yaml -e "becomemethod=sudo privileged_user=ec2-user ocpv4_version=4.10.12"
+----
+
+*Generate Per Cluster SSH Key*
+
+----
+cd ~/redhat/ocpv4/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-ssh-keygen.yml -e "cluster_id=hub01"
 ----
 
 From the output you need to get the public key generated this will go into our cluster install-config.yaml
@@ -103,13 +63,23 @@ ok: [127.0.0.1] => {
 Replace the sshKey field with one in msg output above
 
 ----
-[ec2-user@ip-172-31-51-30 ~]$ cd /data/ocpv4-deployment-tam/
+cd ~/redhat/ocpv4/git//ocpv4-deployment-tam/
 vi dsulliva-hub01/config/install-config.yaml
 ----
+
+*Install OpenShift Hub Cluster*
 
 ----
 cd /git/data/ocpv4-deployment-tam/common/playbooks
 [ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=ec2-user privileged_group=ec2-user ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
+----
+
+In another terminal
+
+----
+cd ~/dsulliva-hub01
+ls -lrt #find the latest install file
+tail <latestinstallfile>
 ----
 
 
@@ -118,24 +88,44 @@ cd /git/data/ocpv4-deployment-tam/common/playbooks
 [ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count_init=14 ready_node_count_postinit=14 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.nasatam.support"
 ----
 
-dsulliva-hub01-common-install-ocpv4
-Log into the ansible tower build node via ssh
-cd dsulliva-hub01;ls -lrt
-tail -f the install log
-dsulliva-hub01-common-post-ocpv4-install-config
-Log into the ansible tower build node via ssh
-export KUBECONFIG=/home/ec2-user/dsulliva-hub01/installocpv4/auth/kubeconfig
-This playbook/role has 4 main kustomize stages
-Stage I does our machinesets and optionally mco chrony
-watch -n 5 'oc get machines -n openshift-machine-api && oc get nodes'
-We really want our machines online and time right before we throw our operators on
-Stage II does openshift-gitops operator and stages some namespaces
-Another chicken and egg problem kind of need argocd up before you can deploy argocd applications
-Stage III does phase one of argocd/openshift-gitops applications
-watch -n 5 'oc get pods -n openshift-storage && oc get pvc --all-namespaces'
-Stage IV does phase two of the argocd/openshift-gitops applications
-watch -n 5 ‘oc get nodes’
-Here we do oauth setup and internal registry setup both of these have negative affects on core/operator rollout
+----
+export KUBECONFIG=~/dsulliva-hub01/installocpv4/auth/kubeconfig
+----
 
+This playbook/role has 4 main kustomize stages
+
+* Stage I does our machinesets and optionally mco chrony
+
+----
+watch -n 5 'oc get machines -n openshift-machine-api && oc get nodes'
+----
+
+We really want our machines online and time right before we start throw our operators on
+
+* Stage II does openshift-gitops operator and stages some namespaces
+
+Another chicken and egg problem kind of need argocd up before you can deploy argocd applications
+
+* Stage III does phase one of argocd/openshift-gitops applications
+
+----
+watch -n 5 'oc get pods -n openshift-storage && oc get pvc --all-namespaces'
+----
+
+* Stage IV does phase two of the argocd/openshift-gitops applications
+
+----
+watch -n 5 ‘oc get nodes’
+----
+
+== Ansible Core Spoke Cluster Deployment
+
+
+*Generate Per Cluster SSH Key*
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-ssh-keygen.yml -e "cluster_id=dsulliva-spoke01"
+----
 
 // vim: set syntax=asciidoc:
