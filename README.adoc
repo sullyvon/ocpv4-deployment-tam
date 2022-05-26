@@ -115,7 +115,7 @@ watch -n 5 'oc get pods -n openshift-storage && oc get pvc --all-namespaces'
 * Stage IV does phase two of the argocd/openshift-gitops applications
 
 ----
-watch -n 5 ‘oc get nodes’
+watch -n 5 'oc get nodes'
 ----
 
 == Ansible Core Spoke Cluster Deployment
