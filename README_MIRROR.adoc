@@ -1,0 +1,267 @@
+= Overview
+
+Using a Hub OCPv4 Cluster for mirroring Openshift release and catalog content for building "Spoke" OCPv4 clusters.
+
+= Issues
+
+* Existing non tech preview mirror tooling as of 26 May 2022 a little chicken and egg
+** A lot of work needed to determine where to start from channel/csv wise
+** Almost have to deploy a cluster to determine what is really needed to be safe
+
+* Full catalog mirror download can resolve some issues with removing the "chicken and egg" problem but still has downsides
+** You end up mirroring content that you do not need old stuff and new stuff
+** Seemed to be fairly sequential, and with low bandwdith outbound connection takes a super long time (days)
+*** not great when you might need to make a an update for a critical vulnerability
+
+* Partial mirror with existing tooling not super great
+** Download this data, then filter, then mirror a lot of extra work
+** Potential for missing dependencies
+*** Operators aligned to this repo but need image out another repo
+*** odf operator now kicks off other operators so if you only partial mirrored odf you're probably missing other images
+** Has same problem as full catalog mirror you better be doing this daily as to not miss images
+*** operators update in staging from one csv to the next sometimes they can skip but each stage may want a different image
+**** this right here is a good place for people to fall on their face 
+
+* Automated Operator Approval which infers rollout sounds great but also sounds dangerous
+** Prefer to set approval to false and control when automated operator updates happen (after downstream testing)
+
+= Background
+
+* started looking at this during 4u9 and into 4u10
+** first did full mirror took forever, brute force, customer slow network no excuses for them but reality for me
+** went back to partial mirror and brute forced build, more partial mirror as post install deploys finding missing images
+* pulled back and dug into the openshift objects so I could gather an understanding of the issues that I thought I was seeing
+** ended up sending email into openshift-sme about these issues and got a good response I think
+
+Let's go over the catalog operator structure
+
+*Catalog Operator Packaging Structure*
+
+* CatalogSource
+** packagemanifest
+*** Channel 
+**** ClusterServiceVersion (csv)
+***** CustomResourceDefinition
+***** InstallPlan (ip)
+
+*Catalog Operator Deployment Structure*
+
+* CatalogSource
+** Subscription
+** OperatorGroup (needed in namespace you want to deploy operator to)
+*** ClusterServiceVersion
+**** InstallPlan
+***** Job
+****** operator bundle image 
+
+----
+[dsulliva@fancy .docker]$ oc get jobs -n openshift-marketplace -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.activeDeadlineSeconds}{"\n"}{end}'
+08aa0deaba969e7904ad889667c93cc277552a20b17685c3beb6e478fe19ed3	600
+2a384d7c08031e87f9401ce4e2eb88aa5d77623890436418f402a431e664965	600
+40faf9b09dfee4dc1387f3870c6826a5164498299c605195a02d22c8af6a1c6	600
+----
+
+= Requirements
+
+* Faster installs and upgrades
+** Reduce potential fails due to slow network 
+* Removes upstream dependency
+* Allows for physically or logically disconnection spoke cluster installations
+** Probably best to not let your production deployments have access to the outside world
+* Prevent freefall random/automated updates 
+** sounds great on paper but risky we have automated operater updates cause outages
+* Allow for downstream testing before rolling up to higher environments
+* Minimize storage space required for mirrored content
+
+= Design
+
+Hub Cluster Provides Shared Services
+
+* OCPv4 Release Mirror
+* OCPv4 Operator Catalog Mirror
+
+= Implementation
+
+== Laptop and or build node setup
+
+* don't shoot me still running fedora 29
+** preference would be to have a build node setup running appropriate rhel release
+
+Tools here including disconnected tools (oc-mirror tool and a cooked mirror registry)
+
+* https://console.redhat.com/openshift/downloads
+** Under "Tokens" grab the pull secret 
+** https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/oc-mirror.tar.gz
+
+Create this file with your pull secret
+----
+[dsulliva@fancy ~]$ cat .docker/config.json
+----
+
+*Note:* The cooked registry might be good for a quick disconnected stand up, but think a hub mirror design better long term.
+
+== Interrogate upstream catalog for the operator you need
+
+Start by looking at the available operator catalogs
+
+----
+[dsulliva@fancy oc-mirror]$ ./oc-mirror list operators --catalogs --version=4.10
+Available OpenShift OperatorHub catalogs:
+OpenShift 4.10:
+registry.redhat.io/redhat/redhat-operator-index:v4.10
+registry.redhat.io/redhat/certified-operator-index:v4.10
+registry.redhat.io/redhat/community-operator-index:v4.10
+----
+
+We want the redhat-operator-index so next list the operators in that index
+
+----
+[dsulliva@fancy oc-mirror]$ ./oc-mirror list operators --catalog=registry.redhat.io/redhat/redhat-operator-index:v4.10
+WARN[0101] DEPRECATION NOTICE:
+Sqlite-based catalogs and their related subcommands are deprecated. Support for
+them will be removed in a future release. Please migrate your catalog workflows
+to the new file-based catalog format. 
+NAME                                    DISPLAY NAME                                             DEFAULT CHANNEL
+3scale-operator                         Red Hat Integration - 3scale                             threescale-2.11
+advanced-cluster-management             Advanced Cluster Management for Kubernetes               release-2.4
+amq-broker-rhel8                        Red Hat Integration - AMQ Broker for RHEL 8 (Multiarch)  7.x
+amq-online                              Red Hat Integration - AMQ Online                         stable
+amq-streams                             Red Hat Integration - AMQ Streams                        stable
+amq7-interconnect-operator              Red Hat Integration - AMQ Interconnect                   1.10.x
+ansible-automation-platform-operator    Ansible Automation Platform                              stable-2.2
+ansible-cloud-addons-operator           Ansible Cloud Addons                                     stable-cluster-scoped
+apicast-operator                        Red Hat Integration - 3scale APIcast gateway             threescale-2.11
+aws-efs-csi-driver-operator             AWS EFS CSI Driver Operator                              stable
+businessautomation-operator             Business Automation                                      stable
+cincinnati-operator                     OpenShift Update Service                                 v1
+cluster-kube-descheduler-operator       Kube Descheduler Operator                                stable
+cluster-logging                         Red Hat OpenShift Logging                                stable
+clusterresourceoverride                 ClusterResourceOverride Operator                         stable
+codeready-workspaces                    Red Hat CodeReady Workspaces                             latest
+codeready-workspaces2                   Red Hat CodeReady Workspaces - Technical Preview         tech-preview-latest-all-namespaces
+compliance-operator                     Compliance Operator                                      release-0.1
+container-security-operator             Red Hat Quay Container Security Operator                 stable-3.7
+costmanagement-metrics-operator         Cost Management Metrics Operator                         stable
+cryostat-operator                       Cryostat Operator                                        stable
+datagrid                                Data Grid                                                8.3.x
+devworkspace-operator                   DevWorkspace Operator                                    fast
+dpu-network-operator                    DPU Network Operator                                     stable
+eap                                     JBoss EAP                                                stable
+elasticsearch-operator                  OpenShift Elasticsearch Operator                         stable
+external-dns-operator                   ExternalDNS Operator                                     alpha
+file-integrity-operator                 File Integrity Operator                                  release-0.1
+fuse-apicurito                          Red Hat Integration - API Designer                       fuse-apicurito-7.10.x
+fuse-console                            Red Hat Integration - Fuse Console                       7.10.x
+fuse-online                             Red Hat Integration - Fuse Online                        7.10.x
+gatekeeper-operator-product             Gatekeeper Operator                                      stable
+idp-mgmt-operator-product               identity configuration management for Kubernetes         alpha
+integration-operator                    Red Hat Integration                                      1.x
+jaeger-product                          Red Hat OpenShift distributed tracing platform           stable
+jws-operator                            JBoss Web Server Operator                                alpha
+kiali-ossm                              Kiali Operator                                           stable
+klusterlet-product                      Klusterlet                                               release-2.4
+kubernetes-nmstate-operator             Kubernetes NMState Operator                              stable
+kubevirt-hyperconverged                 OpenShift Virtualization                                 stable
+local-storage-operator                  Local Storage                                            stable
+loki-operator                           Loki Operator                                            candidate
+mcg-operator                            NooBaa Operator                                          stable-4.10
+metallb-operator                        MetalLB Operator                                         stable
+mtc-operator                            Migration Toolkit for Containers Operator                release-v1.7
+mtv-operator                            Migration Toolkit for Virtualization Operator            release-v2.3
+nfd                                     Node Feature Discovery Operator                          stable
+node-healthcheck-operator               Node Health Check Operator                               candidate
+node-maintenance-operator               Node Maintenance Operator                                stable
+numaresources-operator                  numaresources-operator                                   4.10
+ocs-operator                            OpenShift Container Storage                              stable-4.10
+odf-csi-addons-operator                 CSI Addons                                               stable-4.10
+odf-lvm-operator                        ODF LVM Operator                                         stable-4.10
+odf-multicluster-orchestrator           ODF Multicluster Orchestrator                            stable-4.10
+odf-operator                            OpenShift Data Foundation                                stable-4.10
+odr-cluster-operator                    Openshift DR Cluster Operator                            stable-4.10
+odr-hub-operator                        Openshift DR Hub Operator                                stable-4.10
+openshift-cert-manager-operator         cert-manager Operator for Red Hat OpenShift              tech-preview
+openshift-gitops-operator               Red Hat OpenShift GitOps                                 latest
+openshift-pipelines-operator-rh         Red Hat OpenShift Pipelines                              pipelines-1.7
+openshift-secondary-scheduler-operator  Secondary Scheduler Operator for Red Hat OpenShift       stable
+openshift-special-resource-operator     Special Resource Operator                                stable
+opentelemetry-product                   Red Hat OpenShift distributed tracing data collection    stable
+performance-addon-operator              Performance Addon Operator                               4.10
+poison-pill-manager                     Poison Pill Operator                                     stable
+ptp-operator                            PTP Operator                                             stable
+quay-bridge-operator                    Red Hat Quay Bridge Operator                             stable-3.7
+quay-operator                           Red Hat Quay                                             stable-3.7
+red-hat-camel-k                         Red Hat Integration - Camel K                            1.6.x
+redhat-oadp-operator                    OADP Operator                                            stable-1.0
+rh-service-binding-operator             Service Binding Operator                                 stable
+rhacs-operator                          Advanced Cluster Security for Kubernetes                 latest
+rhpam-kogito-operator                   RHPAM Kogito Operator                                    7.x
+rhsso-operator                          Red Hat Single Sign-On Operator                          stable
+sandboxed-containers-operator           OpenShift sandboxed containers Operator                  stable-1.2
+serverless-operator                     Red Hat OpenShift Serverless                             stable
+service-registry-operator               Red Hat Integration - Service Registry Operator          2.0.x
+servicemeshoperator                     Red Hat OpenShift Service Mesh                           stable
+skupper-operator                        Skupper                                                  alpha
+sriov-network-operator                  SR-IOV Network Operator                                  stable
+submariner                              Submariner                                               alpha-0.11
+tang-operator                           Tang                                                     0.0.24
+vertical-pod-autoscaler                 VerticalPodAutoscaler                                    stable
+web-terminal                            Web Terminal                                             fast
+windows-machine-config-operator         Windows Machine Config Operator                          stable
+----
+
+Now we want to get the available packagemanifests for a specific operator that you are interested in
+
+----
+dsulliva@fancy oc-mirror]$ ./oc-mirror list operators --catalog=registry.redhat.io/redhat/redhat-operator-index:v4.10 --package=quay-operator
+
+WARN[0136] DEPRECATION NOTICE:
+Sqlite-based catalogs and their related subcommands are deprecated. Support for
+them will be removed in a future release. Please migrate your catalog workflows
+to the new file-based catalog format. 
+PACKAGE        CHANNEL     HEAD
+quay-operator  quay-v3.4   quay-operator.v3.4.7
+quay-operator  quay-v3.5   quay-operator.v3.5.7
+quay-operator  stable-3.6  quay-operator.v3.6.6
+quay-operator  stable-3.7  quay-operator.v3.7.0
+----
+
+Cool, now if I'm starting at a new install I'll probably want to go for the latest stable version and latest csv.
+
+So let's look at where we can start with 3.7
+
+----
+[dsulliva@fancy oc-mirror]$ ./oc-mirror list operators --catalog=registry.redhat.io/redhat/redhat-operator-index:v4.10 --package=quay-operator --channel=stable-3.7
+WARN[0172] DEPRECATION NOTICE:
+Sqlite-based catalogs and their related subcommands are deprecated. Support for
+them will be removed in a future release. Please migrate your catalog workflows
+to the new file-based catalog format. 
+VERSIONS
+3.7.0
+----
+
+Sometimes you can get in trouble with dot releases but it's worth a go, if you do run into an issue we can always fall back to 3.6
+
+----
+[dsulliva@fancy oc-mirror]$ ./oc-mirror list operators --catalog=registry.redhat.io/redhat/redhat-operator-index:v4.10 --package=quay-operator --channel=stable-3.6
+WARN[0122] DEPRECATION NOTICE:
+Sqlite-based catalogs and their related subcommands are deprecated. Support for
+them will be removed in a future release. Please migrate your catalog workflows
+to the new file-based catalog format. 
+VERSIONS
+3.6.5
+3.6.6
+3.6.0
+3.6.1
+3.6.2
+3.6.4
+----
+
+
+* Faster installs
+
+
+= References
+
+* https://medium.com/@vbudidarmawan/demystifying-operator-deployment-in-openshift-2ac7f24ad487
+
+*// vim: set syntax=asciidoc
