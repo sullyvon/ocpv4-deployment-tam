@@ -264,4 +264,4 @@ VERSIONS
 
 * https://medium.com/@vbudidarmawan/demystifying-operator-deployment-in-openshift-2ac7f24ad487
 
-*// vim: set syntax=asciidoc
+// vim: set syntax=asciidoc
