@@ -24,11 +24,15 @@ Using a Hub OCPv4 Cluster for mirroring Openshift release and catalog content fo
 
 * Automated Operator Approval which infers rollout sounds great but also sounds dangerous
 ** Prefer to set approval to false and control when automated operator updates happen (after downstream testing)
+** Last 3 Months we have witnessed outages due to automated operator updates
+*** 2 openshift-gitops
+*** 1 openshift-logging
 
 = Background
 
 * started looking at this during 4u9 and into 4u10
-** first did full mirror took forever, brute force, customer slow network no excuses for them but reality for me
+** the OCPv4 release hasn't been too bad so far
+** the full catalog mirror took forever, brute force, customer slow network no excuses for them but reality for me
 ** went back to partial mirror and brute forced build, more partial mirror as post install deploys finding missing images
 * pulled back and dug into the openshift objects so I could gather an understanding of the issues that I thought I was seeing
 ** ended up sending email into openshift-sme about these issues and got a good response I think
@@ -41,8 +45,7 @@ Let's go over the catalog operator structure
 ** packagemanifest
 *** Channel 
 **** ClusterServiceVersion (csv)
-***** CustomResourceDefinition
-***** InstallPlan (ip)
+**** CustomResourceDefinition
 
 *Catalog Operator Deployment Structure*
 
@@ -73,6 +76,11 @@ Let's go over the catalog operator structure
 * Allow for downstream testing before rolling up to higher environments
 * Minimize storage space required for mirrored content
 
+OCPv4u10 Hub Cluster Installed
+
+* ODF Operator Installed
+* Quay Operator Installed And Configured
+
 = Design
 
 Hub Cluster Provides Shared Services
@@ -99,6 +107,90 @@ Create this file with your pull secret
 ----
 
 *Note:* The cooked registry might be good for a quick disconnected stand up, but think a hub mirror design better long term.
+
+== Interrogate your planned OCPv4 release
+
+----
+[dsulliva@fancy oc-mirror]$ ./oc-mirror list releases --version=4.10
+Listing stable channels. Use --channel=<channel-name> to filter.
+Use oc-mirror list release --channels to discover other channels.
+
+Channel: stable-4.10
+4.9.0
+4.9.4
+4.9.5
+4.9.6
+4.9.7
+4.9.8
+4.9.9
+4.9.10
+4.9.11
+4.9.12
+4.9.13
+4.9.15
+4.9.17
+4.9.18
+4.9.19
+4.9.21
+4.9.22
+4.9.23
+4.9.24
+4.9.25
+4.9.26
+4.9.27
+4.9.28
+4.9.29
+4.9.31
+4.9.32
+4.9.33
+4.10.3
+4.10.4
+4.10.5
+4.10.6
+4.10.8
+4.10.9
+4.10.10
+4.10.11
+4.10.12
+4.10.13
+4.10.14
+----
+
+Hmm odd that 4.9 is in there, maybe there is reason but maybe that's a bug
+
+Ok, let's look at the channels for this release
+
+----
+[dsulliva@fancy oc-mirror]$ ./oc-mirror list releases --channels --version=4.10
+Listing channels for version 4.10.
+
+candidate-4.9
+fast-4.9
+stable-4.9
+eus-4.10
+candidate-4.11
+candidate-4.10
+fast-4.10
+stable-4.10
+----
+
+Now can play with the new mirror tool by first creating 
+
+Create file called imageset-config-release-4u10.yaml
+
+----
+# This config demonstrates how to mirror a version range
+# in the specified channel for an OpenShift release.
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    channels:
+      - name: stable-4.10
+        minVersion: 4.10.12
+        maxVersion: 4.10.14
+----
 
 == Interrogate upstream catalog for the operator you need
 
@@ -256,12 +348,22 @@ VERSIONS
 3.6.4
 ----
 
+TODO:
 
-* Faster installs
-
+* complete release mirror select subset
+* complete catalog mirror select operator subset
+* complete spoke cluster install from mirror
+* look at updates
+** release incrementals
+** catalog incrementals
+* Cook argocd application application that embeds the oc-mirror tooling for schedule to keep your mirror updated
+* review release upgrade
+* review catallog operator upgrade
 
 = References
 
 * https://medium.com/@vbudidarmawan/demystifying-operator-deployment-in-openshift-2ac7f24ad487
+* https://docs.openshift.com/container-platform/4.10/installing/disconnected_install/installing-mirroring-disconnected.html
+* https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/pre-release/
 
 // vim: set syntax=asciidoc
