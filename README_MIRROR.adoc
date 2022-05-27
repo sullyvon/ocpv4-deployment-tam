@@ -174,23 +174,6 @@ fast-4.10
 stable-4.10
 ----
 
-Now can play with the new mirror tool by first creating 
-
-Create file called imageset-config-release-4u10.yaml
-
-----
-# This config demonstrates how to mirror a version range
-# in the specified channel for an OpenShift release.
----
-apiVersion: mirror.openshift.io/v1alpha2
-kind: ImageSetConfiguration
-mirror:
-  platform:
-    channels:
-      - name: stable-4.10
-        minVersion: 4.10.12
-        maxVersion: 4.10.14
-----
 
 == Interrogate upstream catalog for the operator you need
 
@@ -347,6 +330,55 @@ VERSIONS
 3.6.2
 3.6.4
 ----
+
+== Mirror The Release(s)
+
+Now can play with the new mirror tool by first creating 
+
+Create file called imageset-config-release-4u10.yaml
+
+----
+# This config demonstrates how to mirror a version range
+# in the specified channel for an OpenShift release.
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    channels:
+      - name: stable-4.10
+        minVersion: 4.10.12
+        maxVersion: 4.10.14
+----
+
+* ran into issue trying to use oc-mirror from https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/oc-mirror.tar.gz
+* since tech preview decided to just "make build" my own version
+** if you are on the right OS versison you might be able to keep up by using prerelease link in reference
+
+
+Download https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+
+----
+rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz
+----
+
+Add this to you ~/bash_profile
+
+----
+export PATH=/usr/local/go/bin/:$PATH
+----
+
+----
+git clone https://github.com/openshift/oc-mirror.git
+make build
+----
+
+Yay it works now :-)
+
+----
+/home/dsulliva/oc-mirror/git/oc-mirror/bin/oc-mirror --dest-skip-tls --config imageset-config-release-4u10.yaml docker://hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4
+----
+
 
 TODO:
 
