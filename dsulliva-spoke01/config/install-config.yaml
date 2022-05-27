@@ -5,10 +5,10 @@ sshKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCy46Ev6Ekef2PPIG1dZPxHurwh3fMCn4i
 pullSecret: FIXME_PULLSECRET
 imageContentSources:
 - mirrors:
-  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/4.10.12-x86_64
+  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift/release
   source: quay.io/openshift-release-dev/ocp-release
 - mirrors:
-  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/4.10.12-x86_64
+  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift/release
   source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
 additionalTrustBundle: |
   -----BEGIN CERTIFICATE-----
