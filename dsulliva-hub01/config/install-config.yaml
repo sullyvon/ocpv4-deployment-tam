@@ -1,0 +1,46 @@
+apiVersion: v1
+baseDomain: nasatam.support
+fips: false
+sshKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCvL119xMVU7pGIwao25xOC/YQZRU40/hs1BjVTJkiM9+q4qG7c2hyCxrB4TGGDExjbw/hhDDe8QcLU4lEx+rV2rAYIFVos/4Ztm7cVy0BWlZXAkO5esL/6sEYW/0WOg5Avbn1YPbn6lfvqFtaEmOuXIwkMjr9JiWMKZjOrLUpm8H+8tOdh716tfkh+Oiq7lDAt4mLLNL2zte+kF6oi5jPYU9USBPiiz877ZcpUpvjMuM88rlyw9AXUrtt0QEPSWvjKfW8aE+b+6QrmWuR8wLjbfPNKzrWMS2PkuLmwzeW5Dbi6Gk3DiAFqmHpm2Oujq254hz27KQEKvPRN9Xg0ZgUbcPjbNR+BXeLFz54skYOcm8lUof+2cBtbkoApYQoa27ZGBQVxJcFRD1EP5/zML+7GP4BBRfAZ3UyAhhV5irXhixHE/Zpz3+fm4IgB/FFQrUn8LNSTl5nxzxDVn7LtZ50mUJzo4kIRjsATIOHgQmEwRJsTytlRW3m68Y/rFzdz+CDfcbo6K7v0DhSo6cfc/4D0uWCerzHhyXi63GkN9ptECis7RRXn9hQhVt4nI9oCtRLHxoEQWsrO+R+DVRG2xvjcfDMPRasoCDmhm/oFQfNzXioaRlNQjHlVCHyvCyyJOW4PSr0uh5kmwBF0fKAuMCPu889UjtiYHQaRJPLKskOt0w== ec2-user@ip-172-31-37-135.ec2.internal'
+pullSecret: FIXME_PULLSECRET
+controlPlane:
+  hyperthreading: Enabled 
+  name: master
+  platform:
+    aws:
+      zones:
+      - us-east-1a
+      - us-east-1b
+      - us-east-1c
+      rootVolume:
+        type: gp2
+      type: m5.xlarge
+  replicas: 3
+compute: 
+- hyperthreading: Enabled
+  name: worker
+  platform:
+    aws:
+      rootVolume:
+        type: gp2
+      type: m5.xlarge
+      zones:
+      - us-east-1a
+  replicas: 1
+metadata:
+  name: dsulliva-hub01
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 10.0.0.0/16
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - 172.31.0.0/16
+platform:
+  aws:
+    region: us-east-1
+    userTags:
+      adminContact: dsulliva
+    amiID: ami-0c72f473496a7b1c2

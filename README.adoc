@@ -41,7 +41,7 @@ For simplicity we demo this via ansible core but for an Enterprise environment A
 
 ----
 cd ~/redhat/ocpv4/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-stage-ocpv4-software.yaml -e "becomemethod=sudo privileged_user=ec2-user ocpv4_version=4.10.12"
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-stage-ocpv4-software.yaml -e "becomemethod=sudo privileged_user=dsulliva ocpv4_version=4.10.12"
 ----
 
 *Generate Per Cluster SSH Key*
@@ -56,7 +56,7 @@ From the output you need to get the public key generated this will go into our c
 ----
 TASK [ssh-keygen : debug] *****************************************************************************************************************************************************************************************
 ok: [127.0.0.1] => {
-    "msg": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCeDv8bR/y6W2gPonSUr9Vzn4YsxCm4d7yyODPGLinZooUbN9gvK3FAmOuamVgeF+nfrQv9wCPi7ifkFTIYi68G0SC77YYrrQXStUI2IvCZUXkBEO2B6H6PhQN//2FeXbV+2tx3OpAMt17DKhIWtbrAkNLo/Ra7SL9zO4c9RvRehnh/FpWQGRfY3djtEl+PrwG+Vbdt1by4e0v4MLO7CIaIuT0Mf4siuU33NGS81kIU5x82mXkpVHjslwcLqpr5E/L1qCWX6SJ3cgiGD9PvgCL1alvBKoPxhgkjMzcvUX2tuWFWpehqswblGb9UBOCOdPUg67CJjzYWSdNmApZzuSvmi3DOCrSidHGqqXbfcRSfluti3yQi7bbxDfBXbxN08iXHZjJke9GNPKNbhsKyvMnI5MY1X9oeUNIewSYbqykflyfjorOdirWBpgaGL/sCqQcvjytterLtLCGZjtLaYWPZfZLRluY8XEhQ7tGelXlf6JWT5YaTfqVZifpON25NQIYYKkivKcSeIBoH6tUaB+ggDdnuI2xT9i/uKIjMtoOOwMxfagIgRj1hkgbb29m8qj1nlBuGccDP/1bkVEMpt1JKXuCjvO6jxh+ncM6bGeRT8dcy6i7iPv4tI3n+H0qJ+mwbdYZRwozk7xcO39tDxe3ydCzfoKWbK0Qr2Jb7cn4tvQ== ec2-user@ip-172-31-51-30.ec2.internal"
+    "msg": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCeDv8bR/y6W2gPonSUr9Vzn4YsxCm4d7yyODPGLinZooUbN9gvK3FAmOuamVgeF+nfrQv9wCPi7ifkFTIYi68G0SC77YYrrQXStUI2IvCZUXkBEO2B6H6PhQN//2FeXbV+2tx3OpAMt17DKhIWtbrAkNLo/Ra7SL9zO4c9RvRehnh/FpWQGRfY3djtEl+PrwG+Vbdt1by4e0v4MLO7CIaIuT0Mf4siuU33NGS81kIU5x82mXkpVHjslwcLqpr5E/L1qCWX6SJ3cgiGD9PvgCL1alvBKoPxhgkjMzcvUX2tuWFWpehqswblGb9UBOCOdPUg67CJjzYWSdNmApZzuSvmi3DOCrSidHGqqXbfcRSfluti3yQi7bbxDfBXbxN08iXHZjJke9GNPKNbhsKyvMnI5MY1X9oeUNIewSYbqykflyfjorOdirWBpgaGL/sCqQcvjytterLtLCGZjtLaYWPZfZLRluY8XEhQ7tGelXlf6JWT5YaTfqVZifpON25NQIYYKkivKcSeIBoH6tUaB+ggDdnuI2xT9i/uKIjMtoOOwMxfagIgRj1hkgbb29m8qj1nlBuGccDP/1bkVEMpt1JKXuCjvO6jxh+ncM6bGeRT8dcy6i7iPv4tI3n+H0qJ+mwbdYZRwozk7xcO39tDxe3ydCzfoKWbK0Qr2Jb7cn4tvQ== dsulliva@ip-172-31-51-30.ec2.internal"
 }
 ----
 
@@ -70,8 +70,8 @@ vi dsulliva-hub01/config/install-config.yaml
 *Install OpenShift Hub Cluster*
 
 ----
-cd /git/data/ocpv4-deployment-tam/common/playbooks
-[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=ec2-user privileged_group=ec2-user ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
 ----
 
 In another terminal
@@ -84,8 +84,8 @@ tail <latestinstallfile>
 
 
 ----
-cd /git/data/ocpv4-deployment-tam/common/playbooks
-[ec2-user@ip-172-31-51-30 playbooks]$ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count_init=14 ready_node_count_postinit=14 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.nasatam.support"
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count_init=14 ready_node_count_postinit=14 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.nasatam.support"
 ----
 
 ----
@@ -127,5 +127,26 @@ watch -n 5 'oc get nodes'
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
 ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-ssh-keygen.yml -e "cluster_id=dsulliva-spoke01"
 ----
+
+Replace the sshKey field from output in install-config.yaml below
+
+----
+cd ~/redhat/ocpv4/git//ocpv4-deployment-tam/
+vi dsulliva-spoke01/config/install-config.yaml
+----
+
+*Install OpenShift Hub Cluster*
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-spoke01"
+----
+
+*Clean up time be careful this wipes out the cluster
+
+----
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-destroy-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-spoke01"
+----
+
 
 // vim: set syntax=asciidoc:
