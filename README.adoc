@@ -135,7 +135,7 @@ cd ~/redhat/ocpv4/git//ocpv4-deployment-tam/
 vi dsulliva-spoke01/config/install-config.yaml
 ----
 
-*Install OpenShift Hub Cluster*
+*Install OpenShift Spoke Cluster*
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
