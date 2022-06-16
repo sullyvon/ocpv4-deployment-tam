@@ -6,10 +6,228 @@
 
 == Mirroring From External Red Hat To dsulliva-hub01 
 
+*Create configuration for your release mirror*
+
+----
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    architectures:
+      - "amd64"
+    channels:
+      - name: stable-4.10
+        minVersion: 4.10.12
+        maxVersion: 4.10.15
+----
+
+* see https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/config/content_mirror/ocpv4u10/imageset-config-release-4u10.yaml
+
+*Use oc-mirror tool to mirror content from upstream*
+
+----
+oc-mirror --continue-on-error --max-per-registry 12 --dest-skip-tls --config /home/${privileged_user}/git/ocpv4-deployment/config/content_mirror/ocpv4u10/imageset-config-release-4u10.yaml docker://${MIRROR_TO_REGISTRY}
+----
+
+We are using ansible to drive a script
+
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/scripts/hub_mirror_release_4u10.sh
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/common/playbooks/common-post-hub-mirror-ocpv4-release.yml
+
+*Create configuration file for catalog operator mirror*
+
+----
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    architectures:
+      - "amd64"
+  operators:
+    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.10
+      packages:
+        - name: quay-operator
+          channels:
+            - name: stable-3.7
+              minVersion: '3.7.0' 
+        - name: odf-operator
+          channels:
+            - name: stable-4.10
+              minVersion: '4.10.2'
+        - name: odf-csi-addons-operator
+          channels:
+            - name: stable-4.10
+              minVersion: '4.10.2'
+        - name: cluster-logging
+          channels:
+            - name: stable
+              minVersion: '5.4.1-24'
+        - name: openshift-gitops-operator
+          channels:
+            - name: latest
+              minVersion: '1.5.2'
+        - name: elasticsearch-operator
+          channels:
+            - name: stable
+              minVersion: '5.4.1-24'
+        - name: rhacs-operator
+          channels:
+            - name: latest
+              minVersion: '3.70.0'
+        - name: openshift-pipelines-operator-rh
+          channels:
+            - name: pipelines-1.7
+              minVersion: '1.7.0'
+        - name: advanced-cluster-management
+          channels:
+            - name: release-2.4
+              minVersion: '2.4.4'
+----
+
+* see https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/config/content_mirror/ocpv4u10/imageset-config-catalog-4u10.yaml
+
+*Use oc-mirror tool to mirror content from upstream*
+
+----
+oc-mirror --continue-on-error --max-per-registry 12 --dest-skip-tls --config /home/${privileged_user}/git/ocpv4-deployment/config/content_mirror/ocpv4u10/imageset-config-catalog-4u10.yaml docker://${MIRROR_TO_REGISTRY}
+----
+
+We are using ansible to drive a script
+
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/scripts/hub_mirror_catalog_4u10.sh
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/common/playbooks/common-post-hub-mirror-ocpv4-catalog.yml
+
+*Create configuration for additional image mirror*
+
+----
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    architectures:
+      - "amd64"
+  additionalImages:
+    - name: registry.redhat.io/openshift4/ose-cli:v4.10.0-202205190747.p0.g878f5a8.assembly.stream
+----
+
+*Use oc-mirror tool to mirror content from upstream*
+
+----
+oc-mirror --continue-on-error --max-per-registry 12 --dest-skip-tls --config /home/${privileged_user}/git/ocpv4-deployment/config/content_mirror/ocpv4u10/imageset-config-adhoc-4u10.yaml docker://${MIRROR_TO_REGISTRY}
+----
+
+We are using ansible to drive a script
+
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/scripts/hub_mirror_adhoc_4u10.sh
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/common/playbooks/common-post-hub-mirror-ocpv4-adhoc.yml
+
+== Mirroring From Connected Hub To Logically Disconneted Hub dsulliva-hub01 to dsulliva-hub01
+
+*Mirror Release Content*
+
+We use the same release mirror playbook and script used above, where the script just has LOCAL_MIRROR flag and vars for from and to registry endpoints
+
+----
+if [ "$LOCAL_MIRROR" = "true" ]
+then
+  oc image mirror -a /home/${privileged_user}/.docker/config.json ${LOCAL_REGISTRY}/openshift/release ${MIRROR_TO_REGISTRY}/openshift/release
+  oc image mirror -a /home/${privileged_user}/.docker/config.json ${LOCAL_REGISTRY}/openshift/release-images ${MIRROR_TO_REGISTRY}/openshift/release-images
+----
+
+*Mirror Catalog Content*
+
+This one was a little more complicated because there are a lot of repos that get created
+
+Here we use the original manifest that was created during the externally connected hub mirror
+
+We manipulate it with this script
+
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/config/content_mirror/generate_hub_cluster_mirror.sh
+
+-----
+bash generate_hub_cluster_mirror.sh -f /home/dsulliva/dsulliva-hub01/oc-mirror-workspace/results-1654631049/mapping.txt -m dsulliva-hub01 -c dsulliva-hub02 > dsulliva-hub02_mapping.txt
+-----
+
+Then we run the same catalog ansible and script used above but with LOCAL_MIRROR flag set to true
+
+----
+if [ "$LOCAL_MIRROR" = "true" ]
+then
+  oc image mirror -a /home/${privileged_user}/.docker/config.json -f /home/${privileged_user}/git/ocpv4-deployment/config/content_mirror/${cluster_id}_mapping.txt --skip-multiple-scopes=true --keep-manifest-list=true
+----
+
+== Disconnected Spoke Install
+
+*Adjust install-config.yaml for you spoke cluster*
+
+* replace pullSecret pulling out quay.io and registry.redhat.io and if you don't make your mirrored repos secet add in auth for your dsulliva-hub02 registry
+* modify imageContentSources as seen below
+* add in an additonalTrustBundle for ssl verify to your quay registry mirror
+
+----
+pullSecret: 'PULLSECRET'
+imageContentSources:
+- mirrors:
+  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub02.nasatam.support/ocpv4/openshift/release
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub02.nasatam.support/ocpv4/openshift/release
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+- mirrors:
+  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub02.nasatam.support/ocpv4/openshift/release-images
+  source: quay.io/openshift-release-dev/ocp-release
+additionalTrustBundle: |
+   <fixme-ca-ingress-cert-for-hub-mirror-cluster>
+----
+
+*Ensuring your operators in you post install configuration come from your mirror*
+
+See the following
 
 
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/gitops/kustomize/hub-catalog-mirror/overlays/dsulliva-hub01/kustomization.yaml
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/gitops/kustomize/hub-catalog-mirror/base/catalog_source.yaml
+* https://github.com/sullyvon/ocpv4-deployment-tam/blob/main/gitops/kustomize/hub-catalog-mirror/base/operator_hub.yaml
 
-== 
+----
+---
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  labels:
+    operators.openshift.org/catalog: "true"
+  name: redhat-operator-index-0
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-amq7-amq-online-1-broker-plugin
+    source: registry.redhat.io/amq7/amq-online-1-broker-plugin
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-rhosdt-jaeger-rhel8-operator
+    source: registry.redhat.io/rhosdt/jaeger-rhel8-operator
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-amq7-amq-online-1-standard-controller
+    source: registry.redhat.io/amq7/amq-online-1-standard-controller
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-openshift-serverless-1-tech-preview-eventing-ping-source-rhel8
+    source: registry.redhat.io/openshift-serverless-1-tech-preview/eventing-ping-source-rhel8
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-openshift4-ose-csi-external-snapshotter-rhel8
+    source: registry.redhat.io/openshift4/ose-csi-external-snapshotter-rhel8
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-openshift4-ose-ptp-operator
+    source: registry.redhat.io/openshift4/ose-ptp-operator
+  - mirrors:
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/olm-mirror-v4u9-rel001-openshift-serverless-1-serving-controller-rhel8
+    source: registry.redhat.io/openshift-serverless-1/serving-controller-rhel8
+----
+
+
+  
+
 
 
 // vim: set syntax=asciidoc
