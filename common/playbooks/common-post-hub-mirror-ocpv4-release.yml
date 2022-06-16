@@ -1,0 +1,9 @@
+- hosts: all
+  become: yes
+  become_user: "{{ privileged_user }}"
+  become_method: "{{ becomemethod }}"
+  vars:
+    kube_config: "/home/{{ privileged_user }}/{{ cluster_id }}/installocpv4/auth/kubeconfig"
+
+  roles:
+  - post-hub-mirror-ocpv4-release

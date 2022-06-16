@@ -1,0 +1,46 @@
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    architectures:
+      - "amd64"
+  operators:
+    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.10
+      packages:
+        - name: quay-operator
+          channels:
+            - name: stable-3.7
+              minVersion: '3.7.0' 
+        - name: odf-operator
+          channels:
+            - name: stable-4.10
+              minVersion: '4.10.2'
+        - name: odf-csi-addons-operator
+          channels:
+            - name: stable-4.10
+              minVersion: '4.10.2'
+        - name: cluster-logging
+          channels:
+            - name: stable
+              minVersion: '5.4.1-24'
+        - name: openshift-gitops-operator
+          channels:
+            - name: latest
+              minVersion: '1.5.2'
+        - name: elasticsearch-operator
+          channels:
+            - name: stable
+              minVersion: '5.4.1-24'
+        - name: rhacs-operator
+          channels:
+            - name: latest
+              minVersion: '3.70.0'
+        - name: openshift-pipelines-operator-rh
+          channels:
+            - name: pipelines-1.7
+              minVersion: '1.7.0'
+        - name: advanced-cluster-management
+          channels:
+            - name: release-2.4
+              minVersion: '2.4.4'

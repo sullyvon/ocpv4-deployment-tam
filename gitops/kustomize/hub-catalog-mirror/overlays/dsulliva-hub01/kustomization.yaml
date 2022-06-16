@@ -1,0 +1,18 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+- ../../base
+- image_content_source_policy.yaml 
+
+patches:
+- target:
+    group: operators.coreos.com
+    version: v1alpha1
+    kind: CatalogSource
+    name: redhat-operator-index
+    namespace: openshift-marketplace
+  patch: |-
+    - op: replace
+      path: /spec/image
+      value: 'hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/redhat/redhat-operator-index:v4.10'
