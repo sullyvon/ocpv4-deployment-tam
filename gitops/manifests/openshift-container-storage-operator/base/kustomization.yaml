@@ -3,8 +3,9 @@ kind: Kustomization
 
 resources:
 - namespace.yaml
-- odf-node-wait-job.yaml
+#- odf-node-wait-job.yaml
 - openshift-container-storage-operator-subscription.yaml
+- odf-csi-addons-sub.yaml
 - openshift-container-storage-operator-operatorgroup.yaml
-- odf-crd-wait-job.yaml
+#- odf-crd-wait-job.yaml
 - ocs-storagecluster.yaml

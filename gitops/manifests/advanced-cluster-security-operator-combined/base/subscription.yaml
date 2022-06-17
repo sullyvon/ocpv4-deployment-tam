@@ -6,12 +6,12 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  channel: rhacs-3.67
-  installPlanApproval: Automatic
+  channel: latest
+  installPlanApproval: Manual
   name: rhacs-operator
   source: patch-via-overlay
   sourceNamespace: openshift-marketplace
-  startingCSV: rhacs-operator.v3.67.0
+  startingCSV: 'rhacs-operator.v3.70.0'
   config:
     nodeSelector:
       node-role.kubernetes.io/infra: ""
