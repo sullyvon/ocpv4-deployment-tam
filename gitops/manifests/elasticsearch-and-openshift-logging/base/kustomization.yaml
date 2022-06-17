@@ -6,10 +6,10 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - openshift-logging-namespace.yaml
-- log-node-wait-job.yaml
+#- log-node-wait-job.yaml
 - elasticsearch-operatorgroup.yaml
 - openshift-logging-operatorgroup.yaml
 - elasticsearch-subscription.yaml
 - openshift-logging-subscription.yaml
-- loggings-crd-wait-job.yaml
+#- loggings-crd-wait-job.yaml
 - clusterlogging.yaml

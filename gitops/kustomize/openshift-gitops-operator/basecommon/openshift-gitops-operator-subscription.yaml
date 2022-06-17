@@ -4,12 +4,12 @@ metadata:
   name: openshift-gitops-operator
   namespace: openshift-operators
 spec:
-  channel: stable
+  channel: latest
+  startingCSV: openshift-gitops-operator.v1.5.2
   installPlanApproval: Manual
   name: openshift-gitops-operator
   source: patch-via-overlay
   sourceNamespace: openshift-marketplace
-  startingCSV: openshift-gitops-operator.v1.4.1
   config:
     nodeSelector:
       node-role.kubernetes.io/infra: ""

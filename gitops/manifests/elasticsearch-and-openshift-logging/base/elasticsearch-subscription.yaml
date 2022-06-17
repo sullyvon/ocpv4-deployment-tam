@@ -7,10 +7,11 @@ metadata:
     argocd.argoproj.io/sync-wave: "4"
 spec:
   channel: "stable"
-  installPlanApproval: Automatic
+  startingCSV: 'elasticsearch-operator.5.4.1-24'
   name: elasticsearch-operator
   source: patch-via-overlay 
   sourceNamespace: openshift-marketplace
+  installPlanApproval: Manual
   config:
     nodeSelector:
       node-role.kubernetes.io/logging: ""

@@ -1,0 +1,20 @@
+- name: grab current timestamp
+  shell: date +%Y%m%d%H%M%S
+  register: timestamp
+
+- name: refresh git repo on build node
+  shell: git pull
+  args:
+    chdir: /home/{{ privileged_user }}/git/ocpv4-deployment
+
+- name: mirror ocpv4 release to hub 
+  become: yes
+  become_user: "{{ privileged_user }}"
+  become_method: "{{ becomemethod }}"
+  environment:
+    PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    HTTPS_PROXY: "{{ https_proxy }}"
+    NO_PROXY: "{{ no_proxy }}"
+  async: 172800
+  poll: 30
+  shell: "bash /home/{{ privileged_user }}/git/ocpv4-deployment/scripts/hub_mirror_catalog_4u10.sh {{ cluster_id }} {{ privileged_user }} {{ ocpv4_version }} {{MIRROR_TO_REGISTRY}} {{https_proxy}} {{no_proxy}} {{LOCAL_REGISTRY}} {{LOCAL_MIRROR}}"

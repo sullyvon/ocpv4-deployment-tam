@@ -9,7 +9,8 @@ spec:
   sourceNamespace: openshift-marketplace
   source: patch-via-overlay
   channel: release-2.4
-  installPlanApproval: Automatic
+  startingCSV: 'advanced-cluster-management.v2.4.4'
+  installPlanApproval: Manual
   name: advanced-cluster-management
   config:
     nodeSelector:
