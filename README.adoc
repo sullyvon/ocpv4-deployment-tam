@@ -48,7 +48,7 @@ ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 com
 
 ----
 cd ~/redhat/ocpv4/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-ssh-keygen.yml -e "cluster_id=hub01"
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-ssh-keygen.yml -e "cluster_id=dsulliva-hub01"
 ----
 
 From the output you need to get the public key generated this will go into our cluster install-config.yaml
