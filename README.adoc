@@ -82,6 +82,7 @@ ls -lrt #find the latest install file
 tail <latestinstallfile>
 ----
 
+*Run Post Configuration On Hub Cluster*
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
