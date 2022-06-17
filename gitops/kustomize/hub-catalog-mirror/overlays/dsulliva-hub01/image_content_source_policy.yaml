@@ -8,48 +8,48 @@ metadata:
 spec:
   repositoryDigestMirrors:
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/odf4
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/odf4
     source: registry.redhat.io/odf4
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/rhel8
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/rhel8
     source: registry.redhat.io/rhel8
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/quay
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/quay
     source: registry.redhat.io/quay
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/advanced-cluster-security
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/advanced-cluster-security
     source: registry.redhat.io/advanced-cluster-security
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/openshift-logging
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift-logging
     source: registry.redhat.io/openshift-logging
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/ocp-tools-4-tech-preview
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/ocp-tools-4-tech-preview
     source: registry.redhat.io/ocp-tools-4-tech-preview
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/ubi8
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/ubi8
     source: registry.redhat.io/ubi8
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/rhacm2
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/rhacm2
     source: registry.redhat.io/rhacm2
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/openshift-gitops-1
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift-gitops-1
     source: registry.redhat.io/openshift-gitops-1
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/openshift-pipelines
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift-pipelines
     source: registry.redhat.io/openshift-pipelines
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/openshift4
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift4
     source: registry.redhat.io/openshift4
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/openshift-serverless-1
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift-serverless-1
     source: registry.redhat.io/openshift-serverless-1
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/rh-sso-7
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/rh-sso-7
     source: registry.redhat.io/rh-sso-7
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/rhceph
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/rhceph
     source: registry.redhat.io/rhceph
   - mirrors:
-    - hub-registry-quay-quay-enterprise.apps.hdsulliva-hub01.nasatam.support/ocpv4/redhat
+    - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/redhat
     source: registry.redhat.io/redhat
   
