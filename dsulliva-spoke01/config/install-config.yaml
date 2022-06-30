@@ -2,7 +2,7 @@ apiVersion: v1
 baseDomain: nasatam.support
 fips: false
 sshKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCy46Ev6Ekef2PPIG1dZPxHurwh3fMCn4inPomFWockF8w8FlBOmafIQLEWzdlCktuK3iHht7SCdaujq4AlBSwi+bk1kDYXObWPXP4Ukdh3rsObKhTbagUKlFbzHiM6B0HCNUKD8GH4bbNehz9gnqoz8ZrPMkh2JQIu+AfSvlsoLtpcxmT0PBZrOZ0DMrqnycNWJbybB8bszI5EPsWIWkTt7zXpl6P6nlN0ZqcXfVx5PKuIP98GvzMJlQ3YVuAHrn1jQ0kmcJI3t8k+6vFMA+RX+rI/8ZOrA4nl33ywI+K9fljEMgF4qJKPzKKAufyZ0uoti+NSzfFGnUE/oNhW0lyg1pz2PWGF6rqwiSOmk0Y+kqS+Lwy3t26R6dWUlzjt3ucLy96Jqb3tWSZWP3jpV3GSwA4TlLiaKMbFpf8HXjoSiwmGvuAXia/GVbGqySE3UbcxvuZX6aGaH3Kg1QRcy12I9ohL1EZq5md/ZjBS0aEq4/nSLmJeInzWoqHPKu3jBD3FLPjVEOe7uLPiUKOwgeLWess0XzTk7tp1bglIhkhi5VHKyZDXnrwBzEpgqFtPhrItdjZVVWo0qUzxBV0uyzpr8fh0gM0kLLwquVlTkHz70HlgMNRhLBnE4reTCkXJQMZZvI4ki/uTW8hDfCAf34hp2M6K33hnmHk9iZqlWmeSwQ== dsulliva@fancy'
-pullSecret: FIXME_PULLSECRET
+pullSecret: 'PULLSECRET'
 imageContentSources:
 - mirrors:
   - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift/release
@@ -10,26 +10,10 @@ imageContentSources:
 - mirrors:
   - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift/release
   source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+- mirrors:
+  - hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift/release-images
+  source: quay.io/openshift-release-dev/ocp-release
 additionalTrustBundle: |
-  -----BEGIN CERTIFICATE-----
-  MIIDDDCCAfSgAwIBAgIBATANBgkqhkiG9w0BAQsFADAmMSQwIgYDVQQDDBtpbmdy
-  ZXNzLW9wZXJhdG9yQDE2NTM0OTMxMTEwHhcNMjIwNTI1MTUzODMwWhcNMjQwNTI0
-  MTUzODMxWjAmMSQwIgYDVQQDDBtpbmdyZXNzLW9wZXJhdG9yQDE2NTM0OTMxMTEw
-  ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCtRXoXxU5/gaqZhkckzHCy
-  evSTrV+eNQHEBH/o8GU6SqdPmsHeLK7XsNdsjgB7WhU9hW4Qes2w3Hm+xeqs18NY
-  rlvbv3zs3sIw4RSHUNqoEL7Zjgbe8qKbgxaWs48w1AVNMo5mV4vhHPj8c1zdYkld
-  4AZcSeYGd9BT16M0CT1FBqzciKGf483/0VEgP9pD/RlhE6nI5dB0IzRz+q99cAH6
-  E78KNLyqM/2sw7PIQBU6UUFzXFTMcfvWPLn6m85wdzjE1nkrDEWT04nkSESmsmQA
-  UnbDH7vbxEyjqg8d3Cr3IBG83P6aOZj2J/lBtJGeOaoDncgknfHJCKBjWKqCgzZX
-  AgMBAAGjRTBDMA4GA1UdDwEB/wQEAwICpDASBgNVHRMBAf8ECDAGAQH/AgEAMB0G
-  A1UdDgQWBBSKFEVJjyYEns5dvVRYRTDxbN5/SDANBgkqhkiG9w0BAQsFAAOCAQEA
-  qQinelIXQb7dCkZb4j9dIAnTAkKy6p8Dmas0LmLGq2k4dZYtcZRv9oliFjndGpfI
-  5TX8vW5Vl7KfHGYPgBl0rnkOxrUPx6YmkuIAA1VwI8TAmh/UUo0A+VBxApq+VGvm
-  /wc8mtkY6lq0R7lV/1X4JW/atzt1wnGlvDEciV1t0sDmkUjP3seLTZ8BC3f9kZAg
-  bJGqE/3H5r49NfSDNQWE/U0qzqJtSHWcHRhzmPCezfJDffPJHEUMY0ceYSkrMGqT
-  iY7wifu7DJcLOJ80mfNrN5fyWiv+Zn0+tZjuNEGpLBASo8NyEAse8txZpdYmiNMM
-  dByDFryg8b/idooYMpMc9A==
-  -----END CERTIFICATE-----
 controlPlane:
   hyperthreading: Enabled 
   name: master

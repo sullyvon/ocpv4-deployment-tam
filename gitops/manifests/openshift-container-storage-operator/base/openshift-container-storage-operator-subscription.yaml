@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   channel: stable-4.10
-  startingCSV: 'odf-operator.v4.10.2'
+  startingCSV: 'odf-operator.v4.10.3'
   installPlanApproval: Manual
   name: odf-operator
   source: patch-via-overlay
