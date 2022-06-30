@@ -1,0 +1,37 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+  - ../../base
+
+patches:
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: odf-operator
+      namespace: openshift-storage
+    patch: |-
+      - op: replace
+        path: /spec/source
+        value: 'redhat-operator-index'
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: odf-csi-addons-operator
+      namespace: openshift-storage
+    patch: |-
+      - op: replace
+        path: /spec/source
+        value: 'redhat-operator-index'
+  - target:
+      group: ocs.openshift.io
+      version: v1
+      kind: StorageCluster
+      name: ocs-storagecluster
+      namespace: openshift-storage
+    patch: |-
+      - op: replace
+        path: /spec/storageDeviceSets/0/dataPVCTemplate/spec/resources/requests/storage
+        value: '500Gi'

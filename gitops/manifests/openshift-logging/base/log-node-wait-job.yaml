@@ -1,0 +1,37 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  name: log-node-wait-job
+  namespace: openshift-gitops
+spec:
+  template:
+    spec:
+      activeDeadlineSeconds: 3600
+      containers:
+        - image: patch-via-overlay
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo -n "Waiting for logging nodes to come online"
+              sleep $SLEEP
+              until [ "$(oc get nodes --no-headers | grep "logging" | grep "Ready" | wc -l)" -eq "3" ]
+              do
+                echo -n "...still waiting logging nodes to come online"
+                sleep $SLEEP
+              done
+              echo "DONE"
+          imagePullPolicy: Always
+          name: log-node-wait-job
+          env:
+          - name: SLEEP
+            value: "30"
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccountName: cli-job-sa
+      terminationGracePeriodSeconds: 30

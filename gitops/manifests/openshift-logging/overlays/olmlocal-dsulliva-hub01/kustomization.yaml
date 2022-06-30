@@ -1,0 +1,37 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+  - ../../base
+
+patches:
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: cluster-logging
+      namespace: openshift-logging
+    patch: |-
+      - op: replace
+        path: /spec/source
+        value: 'redhat-operator-index'
+  - target:
+      group: batch
+      version: v1
+      kind: Job
+      name: log-node-wait-job
+      namespace: openshift-gitops
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: 'hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift4/ose-cli:v4.10.0-202205190747.p0.g878f5a8.assembly.stream'
+  - target:
+      group: batch
+      version: v1
+      kind: Job
+      name: logging-crd-wait-job
+      namespace: openshift-gitops
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: 'hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.nasatam.support/ocpv4/openshift4/ose-cli:v4.10.0-202205190747.p0.g878f5a8.assembly.stream'
