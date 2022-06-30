@@ -21,6 +21,17 @@
     mode: u=rw,g-rwx,o-rwx
     force: yes
 
+- name: replace pullSecret in install config
+  become: yes
+  become_user: "{{ privileged_user }}"
+  become_method: "{{ becomemethod }}"
+  vars:
+      cluster_pullsecret: "{{ pullsecret | replace('\n', '') }}"
+  replace:
+    path: /home/{{ privileged_user }}/{{ cluster_id }}/installocpv4/install-config.yaml
+    regexp: 'PULLSECRET'
+    replace: "{{cluster_pullsecret|to_json}}"
+
 - name: copy install script into place
   become_user: "{{ privileged_user }}"
   become_method: "{{ becomemethod }}"
