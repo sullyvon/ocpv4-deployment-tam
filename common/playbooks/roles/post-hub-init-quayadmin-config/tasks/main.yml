@@ -1,0 +1,17 @@
+- name: initialize quayadmin user password
+  become: yes
+  become_user: "{{ privileged_user }}"
+  become_method: "{{ becomemethod }}"
+  environment:
+    PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+  vars:
+    quayadmin_pass: !vault |
+         $ANSIBLE_VAULT;1.1;AES256
+         30323734616663366266616262336133383361343737326234306664653661323733383035346537
+         6439663433396233663162343135303231373431353461320a373932326434343538633533343232
+         61666164373361663035333633363963303630653339366130336531626464643438363837666364
+         3361393939383833360a633364616335363931663763316234383162356163373232633062383763
+         36616634633737646261646133316264393231663730643037633633363737663766
+  shell:
+    cmd: |
+        curl -X POST -k  https://{{hubendpoint}}/api/v1/user/initialize --header 'Content-Type: application/json' --data '{ "username": "quayadmin", "password":"{{quayadmin_pass}}", "email": "dsulliva@redhat.com", "access_token": true}'

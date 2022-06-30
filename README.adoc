@@ -104,13 +104,25 @@ cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
 ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count_init=14 ready_node_count_postinit=14 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.nasatam.support"
 ----
 
+While the above is running open another terminal 
 ----
 export KUBECONFIG=~/dsulliva-hub01/installocpv4/auth/kubeconfig
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/scripts
+#we need to do this because all our operator Subscriptions are set to Manual approval
+bash approve_operator_ip.sh
 ----
 
 This playbook/role has 4 main kustomize stages
 
 * Stage I does our machinesets and optionally mco chrony
+
+Per code here
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/gitops/kustomize/dsulliva-hub01
+----
+
+To actively watch
 
 ----
 watch -n 5 'oc get machines -n openshift-machine-api && oc get nodes'
@@ -122,7 +134,21 @@ We really want our machines online and time right before we start throw our oper
 
 Another chicken and egg problem kind of need argocd up before you can deploy argocd applications
 
+Per code here
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/gitops/kustomize/openshift-gitops-operator
+----
+
 * Stage III does phase one of argocd/openshift-gitops applications
+
+Per code here
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/gitops/applications/dsulliva-hub01
+----
+
+To actively follow
 
 ----
 watch -n 5 'oc get pods -n openshift-storage && oc get pvc --all-namespaces'
@@ -130,9 +156,37 @@ watch -n 5 'oc get pods -n openshift-storage && oc get pvc --all-namespaces'
 
 * Stage IV does phase two of the argocd/openshift-gitops applications
 
+Per code here
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/gitops/applications/dsulliva-hub01/stage_two
+----
+
 ----
 watch -n 5 'oc get nodes'
 ----
+
+== Ansible Core Hub Cluster Quay Setup
+
+Increase your timeout to help with slow/transient network issues
+
+----
+oc annotate route hub-registry-quay --overwrite haproxy.router.openshift.io/timeout=120s -n quay-enterprise
+----
+
+Create a vault encrypted password for quay use the same vault password you used for the pullsecret
+
+----
+echo -n "<fixme>" | ansible-vault encrypt_string
+----
+
+*Run quay init playbook*
+
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-hub-init-quayadmin-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 hubendpoint="
+----
+
 
 == Ansible Core Spoke Cluster Deployment
 
