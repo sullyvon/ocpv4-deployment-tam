@@ -1,0 +1,47 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+  - ../../base
+
+patches:
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: quay-operator
+      namespace: openshift-operators
+    patch: |-
+      - op: replace
+        path: /spec/channel
+        value: 'stable-3.7'
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: quay-operator
+      namespace: openshift-operators
+    patch: |-
+      - op: replace
+        path: /spec/source
+        value: 'redhat-operators'
+  - target:
+      group: batch
+      version: v1
+      kind: Job
+      name: odf-sc-wait-job
+      namespace: openshift-gitops
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: 'registry.redhat.io/openshift4/ose-cli:v4.10.0-202205190747.p0.g878f5a8.assembly.stream'
+  - target:
+      group: batch
+      version: v1
+      kind: Job
+      name: quay-crd-wait-job
+      namespace: openshift-gitops
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: 'registry.redhat.io/openshift4/ose-cli:v4.10.0-202205190747.p0.g878f5a8.assembly.stream'

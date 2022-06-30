@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   project: cluster-config
   source:
-    path: gitops/manifests/quay-operator/overlays/stable-3u6
+    path: gitops/manifests/quay-operator/overlays/olmextrh
     repoURL: git@github.com:sullyvon/ocpv4-deployment-tam.git
     targetRevision: dsulliva-hub01_master
   syncPolicy:
