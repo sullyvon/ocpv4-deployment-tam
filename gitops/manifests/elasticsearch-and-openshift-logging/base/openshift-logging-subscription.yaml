@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "4"
 spec:
   channel: "stable"
-  startingCSV: 'cluster-logging.5.4.1-24'
+  startingCSV: 'cluster-logging.5.4.2'
   name: cluster-logging
   source: patch-via-overlay
   sourceNamespace: openshift-marketplace
