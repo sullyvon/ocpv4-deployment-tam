@@ -1,4 +1,7 @@
 - hosts: all
+  pre_tasks:
+  - include_vars:
+        file: vars/{{cluster_id}}.yaml
 
   roles:
   -  install-ocpv4

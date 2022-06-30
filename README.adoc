@@ -67,11 +67,26 @@ cd ~/redhat/ocpv4/git//ocpv4-deployment-tam/
 vi dsulliva-hub01/config/install-config.yaml
 ----
 
+Download Pull Secret and fix your pull secret
+
+https://console.redhat.com/openshift/downloads #see Tokens section
+
+download to ~/.docker/config.tmp and convert to ansible vaulted hash
+
+----
+cd ~/.docker/
+[dsulliva@fancy .docker]$ cat config.tmp | ansible-vault encrypt_string #Do not forget the password you use here
+cd ~/redhat/ocpv4/git//ocpv4-deployment-tam/common/playbook
+mkdir vars
+vi dsulliva-hub01.yaml #add in pullsecret with reference to the encrypted vault hash
+----
+
+
 *Install OpenShift Hub Cluster*
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
+ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01"
 ----
 
 In another terminal
