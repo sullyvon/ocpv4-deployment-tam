@@ -4,6 +4,10 @@
   become_method: "{{ becomemethod }}"
   vars:
     kube_config: "/home/{{ privileged_user }}/{{ cluster_id }}/installocpv4/auth/kubeconfig"
+  #pre_tasks:
+  #  - include_vars:
+  #      file: vars/{{cluster_id}}.yaml
+  #    when: cluster_id == "dsulliva-hub01"
 
   roles:
   - post-ocpv4-install-config
