@@ -164,7 +164,7 @@
     until: argocd_login is not failed
 
   - name: add argocd git repo
-    shell: argocd repo add git@github.com/sullyvon/ocpv4-deployment-tam.git --insecure-ignore-host-key --ssh-private-key-path ~/.ssh/id_ed25519
+    shell: argocd repo add git@github.com:sullyvon/ocpv4-deployment-tam.git --insecure-ignore-host-key --ssh-private-key-path ~/.ssh/id_ed25519
 
   #todo need a delay or check here for the repo above to complete 
   - name: deploy gitops cluster-config argo project
