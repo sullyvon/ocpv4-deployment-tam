@@ -1,0 +1,22 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+bases:
+  - ../../base
+
+patches:
+- target:
+     kind: ArgoCD
+     name: openshift-gitops-gstnonprod
+     namespace: openshift-gitops-gstnonprod
+  patch: |-
+     - op: replace
+       path: /spec/applicationInstanceLabelKey
+       value: dsulliva-hub01-openshift-gitops-gstnonprod
+     - op: replace
+       path: /spec/rbac
+       value:
+         defaultPolicy: "role:unauthorized"
+         policy: |
+           g, system:cluster-admins, role:admin
+         scopes: "[groups]"
