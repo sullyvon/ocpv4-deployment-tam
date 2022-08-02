@@ -72,7 +72,7 @@
   - name: refresh git repo on build node
     shell: git pull
     args:
-      chdir: /home/{{ privileged_user }}/git/ocpv4-deployment
+      chdir: /home/{{ privileged_user }}/git/ocpv4-deployment-tam
 
   #per cluster get cluster infrastructure id
   - name: get the unique cluster infrastructure id
