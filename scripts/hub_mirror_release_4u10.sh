@@ -9,15 +9,15 @@ cluster_id="${1}"
 privileged_user="${2}"
 ocpv4_version="${3}"
 MIRROR_TO_REGISTRY="${4}"
-HTTPS_PROXY="${5}"
-NO_PROXY="${6}"
-LOCAL_REGISTRY="${7}"
-LOCAL_MIRROR="${8}"
+#HTTPS_PROXY="${5}"
+#NO_PROXY="${6}"
+LOCAL_REGISTRY="${6}"
+LOCAL_MIRROR="${7}"
 
 
-export https_proxy=${HTTPS_PROXY}
-export http_proxy=${HTTPS_PROXY}
-export no_proxy=${NO_PROXY}
+#export https_proxy=${HTTPS_PROXY}
+#export http_proxy=${HTTPS_PROXY}
+#export no_proxy=${NO_PROXY}
 
 export PATH=/home/${privileged_user}/${ocpv4_version}:~/bin:$PATH
 export KUBECONFIG=/home/${privileged_user}/${cluster_id}/installocpv4/auth/kubeconfig

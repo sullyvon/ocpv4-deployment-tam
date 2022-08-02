@@ -1,5 +1,5 @@
   
- # - name: create cluster ingress console frb signed tls secret  
+ # - name: create cluster ingress console signed tls secret  
  #   become: yes
  #   become_user: "{{ privileged_user }}"
  #   become_method: "{{ becomemethod }}"
@@ -72,7 +72,7 @@
   - name: refresh git repo on build node
     shell: git pull
     args:
-      chdir: /home/{{ privileged_user }}/git/ocpv4-deployment-tam
+      chdir: /home/{{ privileged_user }}/git/ocpv4-deployment
 
   #per cluster get cluster infrastructure id
   - name: get the unique cluster infrastructure id
@@ -95,14 +95,14 @@
 
   #deploy our machinesets and mco
   - name: deploy machinesets
-    shell: bash -c "oc kustomize /home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/kustomize/{{cluster_id}} | envsubst | oc apply -f -"
+    shell: bash -c "oc kustomize /home/{{ privileged_user }}/git/ocpv4-deployment/gitops/kustomize/{{cluster_id}} | envsubst | oc apply -f -"
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
       CLUSTER_INFRA_ID: "{{cluster_infra_id.stdout}}"
 
   - name: stage catalog mirror to master hub for post configuration speed up
-    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/kustomize/hub-catalog-mirror/overlays/{{mirror_hub}}"
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/kustomize/hub-catalog-mirror/overlays/{{mirror_hub}}"
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -112,7 +112,7 @@
   #slightly hacky btw
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -127,7 +127,7 @@
     pause: seconds=5
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -137,7 +137,7 @@
     until: current_ready_node_count.stdout == ready_node_count
 
   - name: deploy kustomized openshift-gitops-operator
-    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/kustomize/openshift-gitops-operator/overlays/{{clustertype}}"
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/kustomize/openshift-gitops-operator/overlays/{{clustertype}}"
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -164,11 +164,11 @@
     until: argocd_login is not failed
 
   - name: add argocd git repo
-    shell: argocd repo add git@github.com:sullyvon/ocpv4-deployment-tam.git --insecure-ignore-host-key --ssh-private-key-path ~/.ssh/id_ed25519
+    shell: argocd repo add git@github.com/sullyvon/ocpv4-deployment-tam.git --insecure-ignore-host-key --ssh-private-key-path ~/.ssh/id_ed25519
 
   #todo need a delay or check here for the repo above to complete 
   - name: deploy gitops cluster-config argo project
-    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/projects/cluster-config/base"
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/projects/cluster-config/base"
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -189,7 +189,7 @@
 
   #mastermind allowance of applications by clusterid for phase one
   - name: deploy per clusterid applications phase one
-    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/applications/{{cluster_id}}" -n openshift-gitops
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/applications/{{cluster_id}}" -n openshift-gitops
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -229,16 +229,16 @@
       msg: "hmm @@{{ orig_worker_machineset.stdout }}@@"
 
   #we want tight control of the attribute settings for our worker nodes so we want to remove the original worker machineset
-  #- name: remove the original worker machineset from ipi install
-  #  shell: bash -c "oc delete machineset {{cluster_infra_id.stdout}}-worker -n openshift-machine-api"
-  #  environment:
-  #    KUBECONFIG: "{{ kube_config }}"
-  #    PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
-  #  when: orig_worker_machineset.stdout != "0"
+  - name: remove the original worker machineset from ipi install
+    shell: bash -c "oc delete machineset {{cluster_infra_id.stdout}}-worker -n openshift-machine-api"
+    environment:
+      KUBECONFIG: "{{ kube_config }}"
+      PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
+    when: orig_worker_machineset.stdout != "0"
 
   #mastermind allowance of applications by clusterid for phase two
   - name: deploy per clusterid applications phase two
-    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment-tam/gitops/applications/{{cluster_id}}/phase_two" -n openshift-gitops
+    shell: oc apply -k "/home/{{ privileged_user }}/git/ocpv4-deployment/gitops/applications/{{cluster_id}}/phase_two" -n openshift-gitops
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -249,7 +249,7 @@
     pause: seconds=30
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}
@@ -264,7 +264,7 @@
     pause: seconds=5
 
   - name: wait until we have the right amount of nodes ready
-    shell: oc get nodes | grep " Ready " | wc -l
+    shell: oc get nodes | egrep "{{cluster_id}}-infra|{{cluster_id}}-log|{{cluster_id}}-odf|{{cluster_id}}-worker|master" | grep " Ready " | wc -l
     environment:
       KUBECONFIG: "{{ kube_config }}"
       PATH: /home/{{ privileged_user }}/{{ ocpv4_version }}:{{ ansible_env.PATH }}

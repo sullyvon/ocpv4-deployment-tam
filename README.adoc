@@ -184,8 +184,26 @@ echo -n "<fixme>" | ansible-vault encrypt_string
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-hub-init-quayadmin-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 hubendpoint=hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com/"
+ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-hub-init-quayadmin-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 hubendpoint=hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com"
 ----
+
+* Do some configuration in quay UI
+** Log in to the quay endpoint using quayadmin https://hubendpoint=hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com
+*** Create Org "ocpv4"
+**** https://hubendpoint=hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com/organizations/new/
+
+* Create docker cli application token credentials named "quayadmin-docker"
+** https://hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com/user/quayadmin?tab=settings click "Create Application Token" 
+
+* On your build node where you are running your ansible-playbooks create a local docker config json for your privileged user and include the docker config json for the dsulliva-hub01 cluster and quayadmin creds
+** Update this file with those details /home/dsulliva/.docker/config.json
+* Update the build node ca relative to the dsulliva-hub01 self signed cert ca 
+** Get the ca cert for the hub route (right now it's the self signed ingress ca cert)
+*** /home/dsulliva/4.10.12/oc get secret router-ca -n openshift-ingress-operator -o 'go-template={{index .data "tls.crt"}}' | base64 -d > dsulliva-hub01-ca.pem
+*** sudo cp dsulliva-hub01-ca.pem /etc/pki/ca-trust/source/anchors/
+*** sudo update-ca-trust extract
+
+* Run playbook "common-post-hub-mirror-ocpv4-release"
 
 
 == Ansible Core Spoke Cluster Deployment
