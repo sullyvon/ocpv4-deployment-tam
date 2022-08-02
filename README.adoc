@@ -101,7 +101,7 @@ tail <latestinstallfile>
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count_init=14 ready_node_count_postinit=14 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.nasatam.support"
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-ocpv4-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 postconfig_mode=init ready_node_count=15 clustertype=hubextrh acm_managed_cluster=false openshift_gitops_endpoint=openshift-gitops-server-openshift-gitops.apps.dsulliva-hub01.sandbox517.opentlc.com openshift_gitops_gstnonprod_endpoint=openshift-gitops-gstnonprod-server-openshift-gitops.apps.dsulliva-hub01.sandbox517.opentlc.com"
 ----
 
 While the above is running open another terminal 
@@ -184,7 +184,7 @@ echo -n "<fixme>" | ansible-vault encrypt_string
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-hub-init-quayadmin-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 hubendpoint="
+ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-hub-init-quayadmin-config.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 hubendpoint=hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com/"
 ----
 
 
