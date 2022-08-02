@@ -11,8 +11,8 @@ ocpv4_version="${3}"
 MIRROR_TO_REGISTRY="${4}"
 #HTTPS_PROXY="${5}"
 #NO_PROXY="${6}"
-LOCAL_REGISTRY="${6}"
-LOCAL_MIRROR="${7}"
+LOCAL_REGISTRY="${5}"
+LOCAL_MIRROR="${6}"
 
 
 #export https_proxy=${HTTPS_PROXY}
