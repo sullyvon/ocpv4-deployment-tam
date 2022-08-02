@@ -35,7 +35,7 @@ then
   oc image mirror -a /home/${privileged_user}/.docker/config.json ${LOCAL_REGISTRY}/openshift/release ${MIRROR_TO_REGISTRY}/openshift/release
   oc image mirror -a /home/${privileged_user}/.docker/config.json ${LOCAL_REGISTRY}/openshift/release-images ${MIRROR_TO_REGISTRY}/openshift/release-images
 else
- oc-mirror --continue-on-error --max-per-registry 12 --dest-skip-tls --config /home/${privileged_user}/git/ocpv4-deployment/config/content_mirror/ocpv4u10/imageset-config-release-4u10.yaml docker://${MIRROR_TO_REGISTRY}
+ oc-mirror --continue-on-error --max-per-registry 12 --dest-skip-tls --config /home/${privileged_user}/git/ocpv4-deployment-tam/config/content_mirror/ocpv4u10/imageset-config-release-4u10.yaml docker://${MIRROR_TO_REGISTRY}
 fi
 
 if [ $? -ne 0 ]
