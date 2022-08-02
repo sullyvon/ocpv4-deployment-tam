@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openshift-gitops-gstnonprod
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  destination:
+    namespace: openshift-gitops
+    server: https://kubernetes.default.svc
+  project: cluster-config
+  source:
+    path: gitops/manifests/openshift-gitops-gstnonprod/overlays/dsulliva-hub01
+    repoURL: git@github.com:sullyvon/ocpv4-deployment-tam.git
+    targetRevision: dsulliva-hub01_master
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
