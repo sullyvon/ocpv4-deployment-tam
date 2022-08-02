@@ -205,6 +205,10 @@ ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --li
 
 * Run playbook "common-post-hub-mirror-ocpv4-release"
 
+----
+cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
+ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-post-hub-mirror-ocpv4-release.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-hub01 MIRROR_TO_REGISTRY=hub-registry-quay-quay-enterprise.apps.dsulliva-hub01.sandbox517.opentlc.com/ocpv4"
+----
 
 == Ansible Core Spoke Cluster Deployment
 

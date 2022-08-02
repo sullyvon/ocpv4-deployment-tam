@@ -5,7 +5,7 @@
 - name: refresh git repo on build node
   shell: git pull
   args:
-    chdir: /home/{{ privileged_user }}/git/ocpv4-deployment
+    chdir: /home/{{ privileged_user }}/git/ocpv4-deployment-tam
 
 - name: mirror ocpv4 release to hub 
   become: yes
@@ -17,5 +17,5 @@
    # NO_PROXY: "{{ no_proxy }}"
   async: 21600
   poll: 30
-  #shell: "bash /home/{{ privileged_user }}/git/ocpv4-deployment/scripts/hub_mirror_release_4u10.sh {{ cluster_id }} {{ privileged_user }} {{ ocpv4_version }} {{MIRROR_TO_REGISTRY}} {{https_proxy}} {{no_proxy}} {{LOCAL_REGISTRY}} {{LOCAL_MIRROR}}"
-  shell: "bash /home/{{ privileged_user }}/git/ocpv4-deployment/scripts/hub_mirror_release_4u10.sh {{ cluster_id }} {{ privileged_user }} {{ ocpv4_version }} {{MIRROR_TO_REGISTRY}} {{LOCAL_REGISTRY}} {{LOCAL_MIRROR}}"
+  #shell: "bash /home/{{ privileged_user }}/git/ocpv4-deployment-tam/scripts/hub_mirror_release_4u10.sh {{ cluster_id }} {{ privileged_user }} {{ ocpv4_version }} {{MIRROR_TO_REGISTRY}} {{https_proxy}} {{no_proxy}} {{LOCAL_REGISTRY}} {{LOCAL_MIRROR}}"
+  shell: "bash /home/{{ privileged_user }}/git/ocpv4-deployment-tam/scripts/hub_mirror_release_4u10.sh {{ cluster_id }} {{ privileged_user }} {{ ocpv4_version }} {{MIRROR_TO_REGISTRY}} {{LOCAL_REGISTRY}} {{LOCAL_MIRROR}}"
