@@ -231,7 +231,7 @@ vi dsulliva-spoke01/config/install-config.yaml
 
 ----
 cd ~/redhat/ocpv4/git/ocpv4-deployment-tam/common/playbooks
-ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-spoke01"
+ansible-playbook --ask-vault-pass --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 common-install-ocpv4.yml -e "becomemethod=sudo privileged_user=dsulliva privileged_group=dsulliva ocpv4_version=4.10.12 cluster_id=dsulliva-spoke01"
 ----
 
 *Clean up time be careful this wipes out the cluster
