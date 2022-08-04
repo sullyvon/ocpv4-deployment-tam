@@ -1,5 +1,7 @@
 = Overview
 
+![Hub And Spoke Architectuture Design Segment](https://user-images.githubusercontent.com/658238/182851885-a9816217-364f-495b-9941-b72bb8ef62df.png)
+
 = Installation Procedures
 
 == Setup laptop
